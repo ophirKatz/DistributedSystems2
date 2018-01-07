@@ -4,8 +4,8 @@ package transactions;
  * Created by ophir on 01/01/18.
  */
 public class ShippingTransaction extends AbstractTransaction {
-    String shipID;
-    String itemID;
+    private String shipID;
+    private String itemID;
 
     public ShippingTransaction(String shipID, String itemID) {
         this.shipID = shipID;

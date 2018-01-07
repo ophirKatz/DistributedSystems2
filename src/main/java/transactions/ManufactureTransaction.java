@@ -4,7 +4,7 @@ package transactions;
  * Created by ophir on 01/01/18.
  */
 public class ManufactureTransaction extends AbstractTransaction {
-    String itemID;
+    private String itemID;
 
     @Override
     public boolean equals(Object o) {

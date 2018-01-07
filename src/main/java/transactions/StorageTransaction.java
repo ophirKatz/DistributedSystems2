@@ -4,8 +4,8 @@ package transactions;
  * Created by ophir on 01/01/18.
  */
 public class StorageTransaction extends AbstractTransaction {
-    String containerID;
-    String itemID;
+    private String containerID;
+    private String itemID;
 
     @Override
     public boolean equals(Object o) {

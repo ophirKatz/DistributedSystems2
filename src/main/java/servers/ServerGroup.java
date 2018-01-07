@@ -7,9 +7,9 @@ import java.util.Set;
  */
 public abstract class ServerGroup {
 
-    private final Set<BlockchainProcess> servers;
+    private final Set<BlockChainServer> servers;
 
-    public ServerGroup(Set<BlockchainProcess> servers) {
+    public ServerGroup(Set<BlockChainServer> servers) {
         this.servers = servers;
     }
 
@@ -17,5 +17,5 @@ public abstract class ServerGroup {
     /**
      * The algorithm to choose the server to create the next block in the blockchain.
      * */
-    public abstract BlockchainProcess nextBlockCreator();
+    public abstract BlockChainServer nextBlockCreator();
 }
