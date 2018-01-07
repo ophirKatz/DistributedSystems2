@@ -1,6 +1,7 @@
 package leaderelection.nodes;
 
 import leaderelection.ZooKeeperService;
+import org.apache.log4j.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class ProcessNode implements Runnable {
 
-    //private static final Logger LOG = Logger.getLogger(ProcessNode.class);
+    private static final Logger LOG = Logger.getLogger(ProcessNode.class);
 
     private static final String LEADER_ELECTION_ROOT_NODE = "/election";
     private static final String PROCESS_NODE_PREFIX = "/p_";

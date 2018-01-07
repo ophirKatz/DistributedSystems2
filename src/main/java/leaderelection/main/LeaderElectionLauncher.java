@@ -18,11 +18,12 @@ public class LeaderElectionLauncher {
     public static void main(String args[]) throws IOException {
 
         System.out.println(System.getProperty("user.dir") + "/src/start_zookeeper.sh");
+        System.out.println("------------------------------------------------------------------");
         //Runtime.getRuntime().exec(System.getProperty("user.dir") + "/src/start_zookeeper.sh");
         //Thread.sleep(300);
 
         int id = 1;
-        //id = Integer.parseInt(args[0]);
+        id = Integer.parseInt(args[0]);
         final String zkURL = "127.0.0.1:2181";
 
 
