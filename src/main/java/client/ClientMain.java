@@ -1,5 +1,6 @@
 package client;
 
+import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import javafx.util.Pair;
@@ -8,6 +9,7 @@ import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 
 /**
  * Created by ophir on 08/01/18.
@@ -40,13 +42,19 @@ public class ClientMain {
     }
 
     public static Response handleUserInput(final String path, final ActionType actionType) {
+        Client client = Client.create();
         switch (actionType) {
             case ADD:   // POST
+                WebResource baseResource1 = client.resource("http://localhost:8080" + path);
+                //baseResource1.post(baseRcesource1); *****or path?
+                baseResource1.getRequestBuilder().post(baseResource1);
                 break;
-            case QUERY: // GET
-                Client client = Client.create();
-                WebResource baseResource = client.resource("http://localhost:8080" + path);
 
+            case QUERY: // GET
+                WebResource baseResource2 = client.resource("http://localhost:8080" + path);
+                Message message1 = baseResource2.getRequestBuilder().get(Message.class);
+                //baseResource2.get(Message.class);
+                //response?
                 break;
         }
         return null;
@@ -56,7 +64,7 @@ public class ClientMain {
 
         while (true) {
             // 1. Request user input (in the format of a path with query parameters)
-            Pair<ActionType, String> userInput;
+            Pair<ActionType, String> userInput = null;
             try {
                 userInput = getUserInput();
             } catch (IOException e) {
@@ -64,7 +72,7 @@ public class ClientMain {
                 System.exit(1);
             }
             // 2. Create an http rest message and send it
-
+            Response response = handleUserInput(userInput.getValue(), userInput.getKey());
             // 3. Get response and analyze it
 
             // 4. Repeat
