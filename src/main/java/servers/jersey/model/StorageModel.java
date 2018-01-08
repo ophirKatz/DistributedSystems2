@@ -1,21 +1,34 @@
-package servers.jersey.modeltransactions;
-
-import transactions.AbstractTransaction;
+package servers.jersey.model;
 
 /**
  * Created by ophir on 01/01/18.
  */
-public class StorageTransaction extends AbstractTransaction {
+public class StorageModel extends AbstractTransaction {
 
     /**
      * Item i is stored on Container c.
      * Item i is removed from Container c.
      */
 
+    public enum StorageType {
+        STORE,
+        REMOVE
+    }
+
     private String containerID;
     private String itemID;
 
-    public StorageTransaction() {
+    public StorageType getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(StorageType storageType) {
+        this.storageType = storageType;
+    }
+
+    private StorageType storageType;
+
+    public StorageModel() {
     }
 
     @Override
@@ -23,10 +36,10 @@ public class StorageTransaction extends AbstractTransaction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StorageTransaction that = (StorageTransaction) o;
+        StorageModel that = (StorageModel) o;
 
-        if (containerID != null ? !containerID.equals(that.containerID) : that.containerID != null) return false;
-        return itemID != null ? itemID.equals(that.itemID) : that.itemID == null;
+        return (containerID != null ? containerID.equals(that.containerID) : that.containerID == null) &&
+                (itemID != null ? itemID.equals(that.itemID) : that.itemID == null);
     }
 
     @Override
@@ -52,9 +65,4 @@ public class StorageTransaction extends AbstractTransaction {
         this.itemID = itemID;
     }
 
-    public StorageTransaction(String containerID, String itemID) {
-
-        this.containerID = containerID;
-        this.itemID = itemID;
-    }
 }

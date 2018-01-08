@@ -1,6 +1,6 @@
 package blockchain;
 
-import transactions.AbstractTransaction;
+import servers.jersey.model.AbstractTransaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class Block {
         this.blockId = blockId;
     }
 
-    public long getTimestamp() {
+    public long getTimeStamp() {
         return this.timestamp;
     }
 
@@ -46,7 +46,7 @@ public class Block {
 
     public AbstractTransaction getTransactionById(Block block, String id) {
         for (AbstractTransaction transaction : block.getTransactions()) {
-            if (transaction.getItemID().equals(id)) {
+            if (transaction.getID().equals(id)) {
                 return transaction;
             }
         }

@@ -1,6 +1,5 @@
 package client;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.Message;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import javafx.util.Pair;
@@ -21,7 +20,7 @@ public class ClientMain {
         QUERY
     }
 
-    public static Pair<ActionType, String> getUserInput() throws IOException {
+    private static Pair<ActionType, String> getUserInput() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         // Action type
@@ -38,26 +37,30 @@ public class ClientMain {
 
         // Input query
         System.out.println("Input query on the resource :");
-        return new Pair<>(actionType, baseMapping + "/" + br.readLine());
+        String resourceQuery = br.readLine();
+        return new Pair<>(actionType, baseMapping + "/" + resourceQuery);
     }
 
-    public static Response handleUserInput(final String path, final ActionType actionType) {
+    private static void handleUserInput(final String path, final ActionType actionType) {
         Client client = Client.create();
         switch (actionType) {
             case ADD:   // POST
-                WebResource baseResource1 = client.resource("http://localhost:8080" + path);
-                //baseResource1.post(baseRcesource1); *****or path?
-                baseResource1.getRequestBuilder().post(baseResource1);
+                WebResource postRequest = client.resource("http://localhost:8080" + path);
+                Response response = postRequest.post(Response.class, postRequest);
+                if (response.getStatus() != 201) {
+                    System.out.println("ERROR for response");
+                    System.exit(1);
+                }
                 break;
 
             case QUERY: // GET
-                WebResource baseResource2 = client.resource("http://localhost:8080" + path);
-                Message message1 = baseResource2.getRequestBuilder().get(Message.class);
-                //baseResource2.get(Message.class);
-                //response?
+                WebResource getRequest = client.resource("http://localhost:8080" + path);
+                String stringResponse = getRequest.getRequestBuilder().get(String.class);
+                System.out.println("*****************************************************\n");
+                System.out.println("The response from the server was : " + stringResponse);
+                System.out.println("\n*****************************************************");
                 break;
         }
-        return null;
     }
 
     public static void main(String[] args) {
@@ -71,12 +74,17 @@ public class ClientMain {
                 e.printStackTrace();
                 System.exit(1);
             }
+
+            // Break condition :
+            if (userInput.getValue().contains("stop")) {
+                break;
+            }
+
             // 2. Create an http rest message and send it
-            Response response = handleUserInput(userInput.getValue(), userInput.getKey());
-            // 3. Get response and analyze it
+            handleUserInput(userInput.getValue(), userInput.getKey());
+            // 3. Get response and analyze it - in handleUserInput function
 
             // 4. Repeat
         }
-
     }
 }

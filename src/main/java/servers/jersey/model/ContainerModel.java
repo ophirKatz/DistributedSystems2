@@ -1,27 +1,41 @@
-package servers.jersey.modeltransactions;
+package servers.jersey.model;
 
 /**
  * Created by ophir on 08/01/18.
  */
-public class ContainerTransaction {
+public class ContainerModel extends AbstractTransaction {
 
     /**
      * Container c is loaded on ship s.
      * Container c is removed from ship s.
      */
 
+    public enum ContainmentType {
+        LOADING,
+        UNLOADING
+    }
+
     private String containerID;
     private String shipID;
+    private ContainmentType containmentType;
+
+    public ContainmentType getContainmentType() {
+        return containmentType;
+    }
+
+    public void setContainmentType(ContainmentType containmentType) {
+        this.containmentType = containmentType;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ContainerTransaction that = (ContainerTransaction) o;
+        ContainerModel that = (ContainerModel) o;
 
-        if (containerID != null ? !containerID.equals(that.containerID) : that.containerID != null) return false;
-        return shipID != null ? shipID.equals(that.shipID) : that.shipID == null;
+        return (containerID != null ? containerID.equals(that.containerID) : that.containerID == null) &&
+                (shipID != null ? shipID.equals(that.shipID) : that.shipID == null);
     }
 
     @Override
@@ -45,12 +59,6 @@ public class ContainerTransaction {
     }
 
     public void setShipID(String shipID) {
-        this.shipID = shipID;
-    }
-
-    public ContainerTransaction(String containerID, String shipID) {
-
-        this.containerID = containerID;
         this.shipID = shipID;
     }
 }

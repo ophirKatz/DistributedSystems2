@@ -1,11 +1,13 @@
-package transactions;
+package servers.jersey.model;
 
 /**
  * Created by ophir on 01/01/18.
  */
-public class AbstractTransaction {
-    public String getItemID() {
-        return null;
+public abstract class AbstractTransaction {
+    private String id;
+
+    public String getID() {
+        return this.id;
     }
 
     /**

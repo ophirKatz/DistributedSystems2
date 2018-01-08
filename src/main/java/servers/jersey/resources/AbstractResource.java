@@ -7,5 +7,5 @@ import servers.jersey.services.AbstractService;
  */
 public class AbstractResource<ServiceType extends AbstractService> {
 
-    private ServiceType service;
+    protected ServiceType service;
 }

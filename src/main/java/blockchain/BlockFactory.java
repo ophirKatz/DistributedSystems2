@@ -1,6 +1,6 @@
 package blockchain;
 
-import transactions.AbstractTransaction;
+import servers.jersey.model.AbstractTransaction;
 
 import java.util.ArrayList;
 import java.util.List;
