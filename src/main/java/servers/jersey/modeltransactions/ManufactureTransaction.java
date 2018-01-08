@@ -1,10 +1,18 @@
-package transactions;
+package servers.jersey.modeltransactions;
+
+import transactions.AbstractTransaction;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Created by ophir on 01/01/18.
  */
+@XmlRootElement
 public class ManufactureTransaction extends AbstractTransaction {
     private String itemID;
+
+    public ManufactureTransaction() {
+    }
 
     @Override
     public boolean equals(Object o) {

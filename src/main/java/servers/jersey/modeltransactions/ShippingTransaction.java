@@ -1,4 +1,6 @@
-package transactions;
+package servers.jersey.modeltransactions;
+
+import transactions.AbstractTransaction;
 
 /**
  * Created by ophir on 01/01/18.
@@ -10,6 +12,9 @@ public class ShippingTransaction extends AbstractTransaction {
     public ShippingTransaction(String shipID, String itemID) {
         this.shipID = shipID;
         this.itemID = itemID;
+    }
+
+    public ShippingTransaction() {
     }
 
     @Override

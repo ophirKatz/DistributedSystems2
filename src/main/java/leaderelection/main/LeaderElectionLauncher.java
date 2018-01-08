@@ -9,21 +9,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * @author Sain Technology Solutions
+ *
+ * This will be the main class the Server Processes will run.
+ * A process that acts as a server will run the main function here and start leader election.
+ * After that, the actual logic of the server will be called [while listening on the Watcher].
+ *
  */
 public class LeaderElectionLauncher {
 
     //private static final Logger LOG = Logger.getLogger(LeaderElectionLauncher.class);
 
     public static void main(String args[]) throws IOException {
-
-        System.out.println(System.getProperty("user.dir") + "/src/start_zookeeper.sh");
-        System.out.println("------------------------------------------------------------------");
-        //Runtime.getRuntime().exec(System.getProperty("user.dir") + "/src/start_zookeeper.sh");
-        //Thread.sleep(300);
-
-        int id = 1;
-        id = Integer.parseInt(args[0]);
+        final int id = Integer.parseInt(args[0]);
         final String zkURL = "127.0.0.1:2181";
 
 

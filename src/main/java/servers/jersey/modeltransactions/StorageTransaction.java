@@ -1,4 +1,6 @@
-package transactions;
+package servers.jersey.modeltransactions;
+
+import transactions.AbstractTransaction;
 
 /**
  * Created by ophir on 01/01/18.
@@ -6,6 +8,9 @@ package transactions;
 public class StorageTransaction extends AbstractTransaction {
     private String containerID;
     private String itemID;
+
+    public StorageTransaction() {
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -26,7 +31,6 @@ public class StorageTransaction extends AbstractTransaction {
     }
 
     public String getContainerID() {
-
         return containerID;
     }
 
@@ -35,7 +39,6 @@ public class StorageTransaction extends AbstractTransaction {
     }
 
     public String getItemID() {
-
         return itemID;
     }
 
