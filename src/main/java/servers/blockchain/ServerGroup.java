@@ -1,4 +1,4 @@
-package servers;
+package servers.blockchain;
 
 import java.util.Set;
 
@@ -14,8 +14,9 @@ public abstract class ServerGroup {
     }
 
     // Todo
+
     /**
      * The algorithm to choose the server to create the next block in the blockchain.
-     * */
+     */
     public abstract BlockChainServer nextBlockCreator();
 }

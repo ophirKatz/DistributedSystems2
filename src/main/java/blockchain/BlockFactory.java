@@ -1,4 +1,4 @@
-package blockChain;
+package blockchain;
 
 import transactions.AbstractTransaction;
 

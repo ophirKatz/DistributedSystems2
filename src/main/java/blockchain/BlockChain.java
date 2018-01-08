@@ -1,4 +1,4 @@
-package blockChain;
+package blockchain;
 
 import java.util.ArrayList;
 import java.util.List;
