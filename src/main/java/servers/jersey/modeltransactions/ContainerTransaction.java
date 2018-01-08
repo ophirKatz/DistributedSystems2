@@ -1,42 +1,38 @@
 package servers.jersey.modeltransactions;
 
-import transactions.AbstractTransaction;
-
 /**
- * Created by ophir on 01/01/18.
+ * Created by ophir on 08/01/18.
  */
-public class StorageTransaction extends AbstractTransaction {
+public class ContainerTransaction {
 
     /**
-     * Item i is stored on Container c.
-     * Item i is removed from Container c.
+     * Container c is loaded on ship s.
+     * Container c is removed from ship s.
      */
 
     private String containerID;
-    private String itemID;
-
-    public StorageTransaction() {
-    }
+    private String shipID;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StorageTransaction that = (StorageTransaction) o;
+        ContainerTransaction that = (ContainerTransaction) o;
 
         if (containerID != null ? !containerID.equals(that.containerID) : that.containerID != null) return false;
-        return itemID != null ? itemID.equals(that.itemID) : that.itemID == null;
+        return shipID != null ? shipID.equals(that.shipID) : that.shipID == null;
     }
 
     @Override
     public int hashCode() {
         int result = containerID != null ? containerID.hashCode() : 0;
-        result = 31 * result + (itemID != null ? itemID.hashCode() : 0);
+        result = 31 * result + (shipID != null ? shipID.hashCode() : 0);
         return result;
     }
 
     public String getContainerID() {
+
         return containerID;
     }
 
@@ -44,17 +40,17 @@ public class StorageTransaction extends AbstractTransaction {
         this.containerID = containerID;
     }
 
-    public String getItemID() {
-        return itemID;
+    public String getShipID() {
+        return shipID;
     }
 
-    public void setItemID(String itemID) {
-        this.itemID = itemID;
+    public void setShipID(String shipID) {
+        this.shipID = shipID;
     }
 
-    public StorageTransaction(String containerID, String itemID) {
+    public ContainerTransaction(String containerID, String shipID) {
 
         this.containerID = containerID;
-        this.itemID = itemID;
+        this.shipID = shipID;
     }
 }

@@ -6,12 +6,17 @@ import transactions.AbstractTransaction;
  * Created by ophir on 01/01/18.
  */
 public class ShippingTransaction extends AbstractTransaction {
-    private String shipID;
-    private String itemID;
 
-    public ShippingTransaction(String shipID, String itemID) {
+    /**
+     * Ship s is leaving port p.
+     * Ship s has arrived to port p.
+     */
+    private String shipID;
+    private String portID;
+
+    public ShippingTransaction(String shipID, String portID) {
         this.shipID = shipID;
-        this.itemID = itemID;
+        this.portID = portID;
     }
 
     public ShippingTransaction() {
@@ -25,22 +30,23 @@ public class ShippingTransaction extends AbstractTransaction {
         ShippingTransaction that = (ShippingTransaction) o;
 
         if (shipID != null ? !shipID.equals(that.shipID) : that.shipID != null) return false;
-        return itemID != null ? itemID.equals(that.itemID) : that.itemID == null;
+        return portID != null ? portID.equals(that.portID) : that.portID == null;
     }
 
     @Override
     public int hashCode() {
         int result = shipID != null ? shipID.hashCode() : 0;
-        result = 31 * result + (itemID != null ? itemID.hashCode() : 0);
+        result = 31 * result + (portID != null ? portID.hashCode() : 0);
         return result;
     }
 
-    public String getItemID() {
-        return itemID;
+    public String getPortID() {
+
+        return portID;
     }
 
-    public void setItemID(String itemID) {
-        this.itemID = itemID;
+    public void setPortID(String portID) {
+        this.portID = portID;
     }
 
     public String getShipID() {

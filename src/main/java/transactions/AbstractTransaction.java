@@ -14,7 +14,7 @@ public class AbstractTransaction {
      * Item i is removed from Container c.
      * Container c is loaded on ship s.
      * Container c is removed from ship s.
-     * Ship s is leaving port p1 to port p2.
+     * Ship s is leaving port p.
      * Ship s has arrived to port p.
      * */
 }
