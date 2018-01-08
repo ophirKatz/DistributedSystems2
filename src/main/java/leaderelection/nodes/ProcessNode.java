@@ -13,7 +13,8 @@ import java.util.List;
 
 
 /**
- * @author Sain Technology Solutions
+ * Each Process Node belongs to a certain server.
+ * Each server knows [via the field leaderNodePath] who the leader
  */
 public class ProcessNode implements Runnable {
 
@@ -27,7 +28,11 @@ public class ProcessNode implements Runnable {
 
     private String processNodePath;
     private String watchedNodePath;
+    private String leaderNodePath;
 
+    public String getLeaderNodePath() {
+        return leaderNodePath;
+    }
 
     public ProcessNode(final int id, final String zkURL) throws IOException {
         this.id = id;
@@ -41,26 +46,19 @@ public class ProcessNode implements Runnable {
         int index = childNodePaths.indexOf(processNodePath.substring(processNodePath.lastIndexOf('/') + 1));
         if (index == 0) {
             System.out.println("[Process: " + id + "] I am the new leader!");
-            /*if (LOG.isInfoEnabled()) {
-                LOG.info("[Process: " + id + "] I am the new leader!");
-            }*/
+            leaderNodePath = processNodePath;
         } else {
             final String watchedNodeShortPath = childNodePaths.get(index - 1);
             watchedNodePath = LEADER_ELECTION_ROOT_NODE + "/" + watchedNodeShortPath;
             System.out.println("[Process: " + id + "] - Setting watch on node with path: " + watchedNodePath);
-            /*if (LOG.isInfoEnabled()) {
-                LOG.info("[Process: " + id + "] - Setting watch on node with path: " + watchedNodePath);
-            }*/
             zooKeeperService.watchNode(watchedNodePath, true);
+
+            leaderNodePath = childNodePaths.get(0);
         }
     }
 
     public void run() {
-
         System.out.println("Process with id: " + id + " has started!");
-        /*if (LOG.isInfoEnabled()) {
-            //LOG.info("Process with id: " + id + " has started!");
-        }*/
 
         final String rootNodePath = zooKeeperService.createNode(LEADER_ELECTION_ROOT_NODE, false, false);
         if (rootNodePath == null) {
@@ -73,9 +71,6 @@ public class ProcessNode implements Runnable {
         }
 
         System.out.println("[Process: " + id + "] Process node created with path: " + processNodePath);
-        /*if (LOG.isDebugEnabled()) {
-            //LOG.debug("[Process: " + id + "] Process node created with path: " + processNodePath);
-        }*/
 
         try {
             attemptForLeaderPosition();
@@ -88,9 +83,6 @@ public class ProcessNode implements Runnable {
 
         public void process(WatchedEvent event) {
             System.out.println("[Process: " + id + "] Event received: " + event);
-            /*if (LOG.isDebugEnabled()) {
-                //LOG.debug("[Process: " + id + "] Event received: " + event);
-            }*/
 
             final EventType eventType = event.getType();
             if (EventType.NodeDeleted.equals(eventType)) {

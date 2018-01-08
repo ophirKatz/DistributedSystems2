@@ -72,6 +72,13 @@
             <version>1.19.4</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.jgroups/jgroups -->
+        <dependency>
+            <groupId>org.jgroups</groupId>
+            <artifactId>jgroups</artifactId>
+            <version>4.0.9.Final</version>
+        </dependency>
+
 
     </dependencies>
 

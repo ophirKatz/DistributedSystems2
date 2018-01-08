@@ -29,17 +29,18 @@ public class ContainerService extends AbstractService<ContainerModel> {
     }
 
     public String getShipIdForContainer(String containerId) {
+        String shipId = null;
         for (Block block : this.blockChain.getBlocks()) {
             for (AbstractTransaction transaction : block.getTransactions()) {
                 //check if this is a container transaction
                 if (transaction.getClass().equals(ContainerModel.class)) {
                     if (((ContainerModel) transaction).getContainerID().equals(containerId)) {
-                        return ((ContainerModel) transaction).getShipID();
+                        shipId = ((ContainerModel) transaction).getShipID();
                     }
                 }
             }
         }
-        return null;
+        return shipId;
     }
 
     public int getNumberOfTransfersForContainer(String containerId) {
@@ -49,8 +50,7 @@ public class ContainerService extends AbstractService<ContainerModel> {
                 //check if this is a container transaction
                 if (transaction.getClass().equals(ContainerModel.class)) {
                     if (((ContainerModel) transaction).getContainerID().equals(containerId)) {
-                        if (((ContainerModel) transaction).getContainmentType()
-                                == ContainerModel.ContainmentType.LOADING) {
+                        if (((ContainerModel) transaction).getContainmentType().equals(ContainerModel.ContainmentType.LOADING)) {
                             numberOfTransfers++;
                         }
                     }

@@ -38,7 +38,6 @@ public class ZooKeeperService {
     }
 
     public boolean watchNode(final String node, final boolean watch) {
-
         boolean watched = false;
         try {
             final Stat nodeStat = zooKeeper.exists(node, watch);
@@ -46,7 +45,6 @@ public class ZooKeeperService {
             if (nodeStat != null) {
                 watched = true;
             }
-
         } catch (KeeperException | InterruptedException e) {
             throw new IllegalStateException(e);
         }
@@ -55,9 +53,7 @@ public class ZooKeeperService {
     }
 
     public List<String> getChildren(final String node, final boolean watch) {
-
         List<String> childNodes;
-
         try {
             childNodes = zooKeeper.getChildren(node, watch);
         } catch (KeeperException | InterruptedException e) {

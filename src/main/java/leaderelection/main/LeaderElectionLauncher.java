@@ -25,7 +25,8 @@ public class LeaderElectionLauncher {
 
 
         final ExecutorService service = Executors.newSingleThreadExecutor();
-        final Future<?> status = service.submit(new ProcessNode(id, zkURL));
+        ProcessNode task = new ProcessNode(id, zkURL);
+        final Future<?> status = service.submit(task);
         try {
             status.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -33,5 +34,8 @@ public class LeaderElectionLauncher {
             e.printStackTrace();
             service.shutdown();
         }
+
+        // TODO : publish id and leader id
+        // TODO : go to main service
     }
 }

@@ -28,8 +28,7 @@ public class ShippingService extends AbstractService<ShippingModel> {
                 //check if this is a shipping transaction
                 if (transaction.getClass().equals(ShippingModel.class)) {
                     if (((ShippingModel) transaction).getShipID().equals(shipId)) {
-                        if (((ShippingModel) transaction).getShipmentType()
-                                == ShippingModel.ShipmentType.LEAVING) {
+                        if (((ShippingModel) transaction).getShipmentType().equals(ShippingModel.ShipmentType.LEAVING)) {
                             numberOfShipments++;
                         }
                     }
@@ -46,8 +45,7 @@ public class ShippingService extends AbstractService<ShippingModel> {
                 //check if this is a shipping transaction
                 if (transaction.getClass().equals(ShippingModel.class)) {
                     if (((ShippingModel) transaction).getShipID().equals(shipId)) {
-                        if (((ShippingModel) transaction).getShipmentType()
-                                == ShippingModel.ShipmentType.ARRIVING) {
+                        if (((ShippingModel) transaction).getShipmentType().equals(ShippingModel.ShipmentType.ARRIVING)) {
                             numberOfArrivals++;
                         }
                     }

@@ -22,17 +22,18 @@ public class StorageService extends AbstractService<StorageModel> {
     }
 
     public String getIdOfItemContainer(String itemId) {
+        String containerId = null;
         for (Block block : this.blockChain.getBlocks()) {
             for (AbstractTransaction transaction : block.getTransactions()) {
                 //check if this is a storage transaction
                 if (transaction.getClass().equals(StorageModel.class)) {
                     if (((StorageModel) transaction).getItemID().equals(itemId)) {
-                        return ((StorageModel) transaction).getContainerID();
+                        containerId = ((StorageModel) transaction).getContainerID();
                     }
                 }
             }
         }
-        return null;
+        return containerId;
     }
 
     public int getNumberOfItemsInContainer(String containerId) {
@@ -42,7 +43,7 @@ public class StorageService extends AbstractService<StorageModel> {
                 //check if this is a storage transaction
                 if (transaction.getClass().equals(StorageModel.class)) {
                     if (((StorageModel) transaction).getContainerID().equals(containerId)) {
-                        if (((StorageModel) transaction).getStorageType() == StorageModel.StorageType.STORE) {
+                        if (((StorageModel) transaction).getStorageType().equals(StorageModel.StorageType.STORE)) {
                             numOfItems++;
                         } else {
                             numOfItems--;
