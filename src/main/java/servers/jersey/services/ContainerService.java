@@ -1,5 +1,6 @@
 package servers.jersey.services;
 
+import blockchain.Block;
 import blockchain.BlockChain;
 import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.ContainerModel;
@@ -28,10 +29,34 @@ public class ContainerService extends AbstractService<ContainerModel> {
     }
 
     public String getShipIdForContainer(String containerId) {
+        for (Block block : this.blockChain.getBlocks()) {
+            for (AbstractTransaction transaction : block.getTransactions()) {
+                //check if this is a container transaction
+                if (transaction.getClass().equals(ContainerModel.class)) {
+                    if (((ContainerModel) transaction).getContainerID().equals(containerId)) {
+                        return ((ContainerModel) transaction).getShipID();
+                    }
+                }
+            }
+        }
         return null;
     }
 
     public int getNumberOfTransfersForContainer(String containerId) {
-        return 0;
+        int numberOfTransfers = 0;
+        for (Block block : this.blockChain.getBlocks()) {
+            for (AbstractTransaction transaction : block.getTransactions()) {
+                //check if this is a container transaction
+                if (transaction.getClass().equals(ContainerModel.class)) {
+                    if (((ContainerModel) transaction).getContainerID().equals(containerId)) {
+                        if (((ContainerModel) transaction).getContainmentType()
+                                == ContainerModel.ContainmentType.LOADING) {
+                            numberOfTransfers++;
+                        }
+                    }
+                }
+            }
+        }
+        return numberOfTransfers;
     }
 }

@@ -1,5 +1,6 @@
 package servers.jersey.services;
 
+import blockchain.Block;
 import blockchain.BlockChain;
 import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.StorageModel;
@@ -21,10 +22,35 @@ public class StorageService extends AbstractService<StorageModel> {
     }
 
     public String getIdOfItemContainer(String itemId) {
+        for (Block block : this.blockChain.getBlocks()) {
+            for (AbstractTransaction transaction : block.getTransactions()) {
+                //check if this is a storage transaction
+                if (transaction.getClass().equals(StorageModel.class)) {
+                    if (((StorageModel) transaction).getItemID().equals(itemId)) {
+                        return ((StorageModel) transaction).getContainerID();
+                    }
+                }
+            }
+        }
         return null;
     }
 
     public int getNumberOfItemsInContainer(String containerId) {
-        return 0;
+        int numOfItems = 0;
+        for (Block block : this.blockChain.getBlocks()) {
+            for (AbstractTransaction transaction : block.getTransactions()) {
+                //check if this is a storage transaction
+                if (transaction.getClass().equals(StorageModel.class)) {
+                    if (((StorageModel) transaction).getContainerID().equals(containerId)) {
+                        if (((StorageModel) transaction).getStorageType() == StorageModel.StorageType.STORE) {
+                            numOfItems++;
+                        } else {
+                            numOfItems--;
+                        }
+                    }
+                }
+            }
+        }
+        return numOfItems;
     }
 }
