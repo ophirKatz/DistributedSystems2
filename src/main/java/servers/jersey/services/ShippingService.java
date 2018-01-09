@@ -1,7 +1,7 @@
 package servers.jersey.services;
 
-import blockchain.Block;
 import blockchain.BlockChain;
+import servers.jersey.ContextBindingModule;
 import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.ShippingModel;
 
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ShippingService extends AbstractService<ShippingModel> {
 
-    public ShippingService(BlockChain blockChain, List<AbstractTransaction> cache) {
+    public ShippingService(BlockChain blockChain, @ContextBindingModule.TransactionCache List<AbstractTransaction> cache) {
         super(blockChain, cache);
     }
 
@@ -21,37 +21,28 @@ public class ShippingService extends AbstractService<ShippingModel> {
 
     }
 
-    public int getNumberOfShipmentsForShip(String shipId) {
-        int numberOfShipments = 0;
-        for (Block block : this.blockChain.getBlocks()) {
-            for (AbstractTransaction transaction : block.getTransactions()) {
-                //check if this is a shipping transaction
-                if (transaction.getClass().equals(ShippingModel.class)) {
-                    if (((ShippingModel) transaction).getShipID().equals(shipId)) {
-                        if (((ShippingModel) transaction).getShipmentType().equals(ShippingModel.ShipmentType.LEAVING)) {
-                            numberOfShipments++;
-                        }
-                    }
-                }
-            }
-        }
-        return numberOfShipments;
+    private int getNumberOfShipActions(String shipId, ShippingModel.ShipmentType shipmentType) {
+        return (int) getAllTransactionsInBlockChainByModelClass(ShippingModel.class).stream()
+                .filter(t -> {
+                    ShippingModel model = (ShippingModel) t;
+                    return model.getShipID().equals(shipId) &&
+                            model.getShipmentType().equals(shipmentType);
+                }).count();
     }
 
+    /**
+     * return the number of shipments the ship with the given id has been part of.
+     * This is the number of times the ship left a port.
+     */
+    public int getNumberOfShipmentsForShip(String shipId) {
+        return getNumberOfShipActions(shipId, ShippingModel.ShipmentType.LEAVING);
+    }
+
+    /**
+     * return the number of shipments arrivals the ship with the given id has been part of.
+     * This is the number of times the ship arrived to a port.
+     */
     public int getNumberOfArrivalsForShip(String shipId) {
-        int numberOfArrivals = 0;
-        for (Block block : this.blockChain.getBlocks()) {
-            for (AbstractTransaction transaction : block.getTransactions()) {
-                //check if this is a shipping transaction
-                if (transaction.getClass().equals(ShippingModel.class)) {
-                    if (((ShippingModel) transaction).getShipID().equals(shipId)) {
-                        if (((ShippingModel) transaction).getShipmentType().equals(ShippingModel.ShipmentType.ARRIVING)) {
-                            numberOfArrivals++;
-                        }
-                    }
-                }
-            }
-        }
-        return numberOfArrivals;
+        return getNumberOfShipActions(shipId, ShippingModel.ShipmentType.ARRIVING);
     }
 }

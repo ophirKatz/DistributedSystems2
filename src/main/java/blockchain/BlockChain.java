@@ -10,15 +10,15 @@ public class BlockChain {
     private List<Block> blocks;
     private String creatorServerId;
 
-    public BlockChain(String creatorServerId) {
+    public BlockChain(/*String creatorServerId*/) {
         this.blocks = new ArrayList<>();
-        this.creatorServerId = creatorServerId;
+        //this.creatorServerId = creatorServerId;
     }
 
-    public BlockChain(List<Block> blocks, String creatorServerId) {
+    /*public BlockChain(List<Block> blocks, String creatorServerId) {
         this.blocks = blocks;
         this.creatorServerId = creatorServerId;
-    }
+    }*/
 
     public String getCreatorServerId() {
         return this.creatorServerId;

@@ -1,10 +1,12 @@
 package servers.jersey.resources;
 
 import blockchain.BlockChain;
+import servers.jersey.ContextBindingModule;
 import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.ContainerModel;
 import servers.jersey.services.ContainerService;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,7 +26,8 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     private static final String cid = "containerId";
     private static final String sid = "shipId";
 
-    public ContainerResource(BlockChain blockChain, List<AbstractTransaction> cache) {
+    @Inject
+    public ContainerResource(BlockChain blockChain, @ContextBindingModule.TransactionCache List<AbstractTransaction> cache) {
         this.service = new ContainerService(blockChain, cache);
     }
 
@@ -58,13 +61,13 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     @GET
     @Path("getShipId")
     public String getShipId(@QueryParam(cid) String containerId) {
-        return null;
+        return service.getShipIdForContainer(containerId);
     }
 
     @GET
     @Path("getNumberOfTransfers")
     public String getNumberOfTransfers(@QueryParam(cid) String containerId) {
-        return null;
+        return String.valueOf(service.getNumberOfTransfersForContainer(containerId));
     }
 }
 

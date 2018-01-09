@@ -80,7 +80,6 @@ public class ProcessNode implements Runnable {
     }
 
     public class ProcessNodeWatcher implements Watcher {
-
         public void process(WatchedEvent event) {
             System.out.println("[Process: " + id + "] Event received: " + event);
 
@@ -94,9 +93,7 @@ public class ProcessNode implements Runnable {
                     }
                 }
             }
-
         }
-
     }
 
 }

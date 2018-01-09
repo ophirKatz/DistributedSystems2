@@ -5,6 +5,7 @@ import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.StorageModel;
 import servers.jersey.services.StorageService;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,6 +25,7 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     public static final String cid = "containerId";
     public static final String iid = "itemId";
 
+    @Inject
     public ItemStorageResource(BlockChain blockChain, List<AbstractTransaction> cache) {
         this.service = new StorageService(blockChain, cache);
     }
@@ -57,12 +59,12 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     @GET
     @Path("getContainerId")
     public String getContainerId(@QueryParam(iid) String itemId) {
-        return null;
+        return service.getIdOfItemContainer(getContainerId(itemId));
     }
 
     @GET
     @Path("numberOfItems")
     public String getNumberOfItems(@QueryParam(cid) String containerId) {
-        return null;
+        return String.valueOf(service.getNumberOfItemsInContainer(containerId));
     }
 }

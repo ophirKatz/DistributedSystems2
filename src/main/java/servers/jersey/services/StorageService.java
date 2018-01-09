@@ -1,18 +1,19 @@
 package servers.jersey.services;
 
-import blockchain.Block;
 import blockchain.BlockChain;
+import servers.jersey.ContextBindingModule;
 import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.StorageModel;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by ophir on 08/01/18.
  */
 public class StorageService extends AbstractService<StorageModel> {
 
-    public StorageService(BlockChain blockChain, List<AbstractTransaction> cache) {
+    public StorageService(BlockChain blockChain, @ContextBindingModule.TransactionCache List<AbstractTransaction> cache) {
         super(blockChain, cache);
     }
 
@@ -21,35 +22,31 @@ public class StorageService extends AbstractService<StorageModel> {
 
     }
 
+    /**
+     * return the id of the container that contains the item with the given id.
+     */
     public String getIdOfItemContainer(String itemId) {
         String containerId = null;
-        for (Block block : this.blockChain.getBlocks()) {
-            for (AbstractTransaction transaction : block.getTransactions()) {
-                //check if this is a storage transaction
-                if (transaction.getClass().equals(StorageModel.class)) {
-                    if (((StorageModel) transaction).getItemID().equals(itemId)) {
-                        containerId = ((StorageModel) transaction).getContainerID();
-                    }
-                }
-            }
+        for (AbstractTransaction transaction : getAllTransactionsInBlockChainByModelClass(StorageModel.class)
+                .stream().filter(t -> ((StorageModel) t).getItemID().equals(itemId))
+                .collect(Collectors.toList())) {
+            containerId = ((StorageModel) transaction).getContainerID();
         }
         return containerId;
     }
 
+    /**
+     * return the number of items in the container with the given id.
+     */
     public int getNumberOfItemsInContainer(String containerId) {
         int numOfItems = 0;
-        for (Block block : this.blockChain.getBlocks()) {
-            for (AbstractTransaction transaction : block.getTransactions()) {
-                //check if this is a storage transaction
-                if (transaction.getClass().equals(StorageModel.class)) {
-                    if (((StorageModel) transaction).getContainerID().equals(containerId)) {
-                        if (((StorageModel) transaction).getStorageType().equals(StorageModel.StorageType.STORE)) {
-                            numOfItems++;
-                        } else {
-                            numOfItems--;
-                        }
-                    }
-                }
+        for (AbstractTransaction transaction : getAllTransactionsInBlockChainByModelClass(StorageModel.class)
+                .stream().filter(t -> ((StorageModel) t).getContainerID().equals(containerId))
+                .collect(Collectors.toList())) {
+            if (((StorageModel) transaction).getStorageType().equals(StorageModel.StorageType.STORE)) {
+                numOfItems++;
+            } else {
+                numOfItems--;
             }
         }
         return numOfItems;

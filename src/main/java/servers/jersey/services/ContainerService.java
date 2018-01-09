@@ -1,11 +1,11 @@
 package servers.jersey.services;
 
-import blockchain.Block;
 import blockchain.BlockChain;
 import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.ContainerModel;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by ophir on 08/01/18.
@@ -28,35 +28,30 @@ public class ContainerService extends AbstractService<ContainerModel> {
         // 4. servers receive block from leader and insert to their blockchain.
     }
 
+    /**
+     * returns the id of the ship that the container with the id is loaded on.
+     */
     public String getShipIdForContainer(String containerId) {
         String shipId = null;
-        for (Block block : this.blockChain.getBlocks()) {
-            for (AbstractTransaction transaction : block.getTransactions()) {
-                //check if this is a container transaction
-                if (transaction.getClass().equals(ContainerModel.class)) {
-                    if (((ContainerModel) transaction).getContainerID().equals(containerId)) {
-                        shipId = ((ContainerModel) transaction).getShipID();
-                    }
-                }
-            }
+        for (AbstractTransaction transaction : getAllTransactionsInBlockChainByModelClass(ContainerModel.class)
+                .stream().filter(t -> ((ContainerModel) t).getContainerID().equals(containerId))
+                .collect(Collectors.toList())) {
+            shipId = ((ContainerModel) transaction).getShipID();
+
         }
         return shipId;
     }
 
+    /**
+     * returns the number of transfers a container has been part of. This translates to the
+     * number of times it was loaded on a ship.
+     */
     public int getNumberOfTransfersForContainer(String containerId) {
-        int numberOfTransfers = 0;
-        for (Block block : this.blockChain.getBlocks()) {
-            for (AbstractTransaction transaction : block.getTransactions()) {
-                //check if this is a container transaction
-                if (transaction.getClass().equals(ContainerModel.class)) {
-                    if (((ContainerModel) transaction).getContainerID().equals(containerId)) {
-                        if (((ContainerModel) transaction).getContainmentType().equals(ContainerModel.ContainmentType.LOADING)) {
-                            numberOfTransfers++;
-                        }
-                    }
-                }
-            }
-        }
-        return numberOfTransfers;
+        return (int) getAllTransactionsInBlockChainByModelClass(ContainerModel.class)
+                .stream().filter(t -> {
+                    ContainerModel model = (ContainerModel) t;
+                    return model.getContainerID().equals(containerId) &&
+                            model.getContainmentType().equals(ContainerModel.ContainmentType.LOADING);
+                }).count();
     }
 }

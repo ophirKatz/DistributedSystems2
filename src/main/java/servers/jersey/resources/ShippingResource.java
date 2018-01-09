@@ -5,6 +5,7 @@ import servers.jersey.model.AbstractTransaction;
 import servers.jersey.model.ShippingModel;
 import servers.jersey.services.ShippingService;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -25,6 +26,7 @@ public class ShippingResource extends AbstractResource<ShippingService> {
     public static final String sid = "shipId";
     public static final String pid = "portId";
 
+    @Inject
     public ShippingResource(BlockChain blockChain, List<AbstractTransaction> cache) {
         this.service = new ShippingService(blockChain, cache);
     }
@@ -58,12 +60,12 @@ public class ShippingResource extends AbstractResource<ShippingService> {
     @GET
     @Path("numberOfShipments")
     public String getNumberOfShipments(@QueryParam(sid) String shipId) {
-        return null;
+        return String.valueOf(service.getNumberOfShipmentsForShip(shipId));
     }
 
     @GET
     @Path("numberOfArrivals")
     public String getNumberOfArrivals(@QueryParam(sid) String shipId) {
-        return null;
+        return String.valueOf(service.getNumberOfArrivalsForShip(shipId));
     }
 }
