@@ -39,6 +39,7 @@ public class ProcessNode implements Runnable {
         zooKeeperService = new ZooKeeperService(zkURL, new ProcessNodeWatcher());
     }
 
+
     private void attemptForLeaderPosition() throws KeeperException, InterruptedException {
         final List<String> childNodePaths = zooKeeperService.getChildren(LEADER_ELECTION_ROOT_NODE, false);
         Collections.sort(childNodePaths);
