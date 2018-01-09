@@ -26,7 +26,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>leaderelection.main.LeaderElectionLauncher</mainClass>
+                            <mainClass>app.leaderelection.main.LeaderElectionLauncher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
