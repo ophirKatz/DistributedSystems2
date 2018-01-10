@@ -2,8 +2,14 @@ package app.servers;
 
 import app.servers.communication.NodeAddress;
 import app.servers.communication.ServerGroup;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
 /**
  * Created by ophir on 09/01/18.
@@ -34,8 +40,23 @@ public class Main {
             @Override
             public void receive(Message msg) {
                 Server.this.receivedData = msg.getObject();
+                //case1- current server is the leader
+                if ((nodeAddress.getNodePath()).equals(leaderNodeAddress.getNodePath())) {
+
+                }
+                //case2- current server isn't the leader
+                else {
+                    try {
+                        //TODO:Create transaction- of which type
+                        sendToLeader(msg.getObject());
+                    } catch (Exception e) {
+                        System.out.println("Failed to send message to Leader");
+                    }
+                }
+
             }
         };
+
 
         public void publishNodeAddress() throws Exception {
             assert nodeAddress != null;
@@ -64,13 +85,23 @@ public class Main {
         }
     }
 
-    public static void serverMain(String nodePath, String leaderNodePath) {
+    public static void serverMain(String nodePath, String leaderNodePath, int port) {
         try {
             // Setup server
             Server server = new Server(nodePath, leaderNodePath);
             server.publishNodeAddress();
+            ReceiverAdapter receiverAdapter = new ReceiverAdapter();
 
             // Setup http server
+            HttpServer httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+            httpServer.createContext(nodePath, new HttpHandler() {
+                @Override
+                public void handle(HttpExchange httpExchange) throws IOException {
+                    receiverAdapter.receive(new Message(server.nodeAddress, httpExchange));
+                }
+            });
+            httpServer.setExecutor(null); // creates a default executor
+            httpServer.start();
 
             // listening... and accepting http messages through the http server
 
@@ -78,7 +109,7 @@ public class Main {
 
             // Resource classes direct them to the services which call the Server class's method accordingly.
 
-            server.leaveGroup();
+            //server.leaveGroup();
         } catch (Exception e) {
             e.printStackTrace();
         }
