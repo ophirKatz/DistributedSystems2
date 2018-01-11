@@ -1,18 +1,16 @@
 package app.server.servers.jersey.services;
 
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
-import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.ShippingModel;
-
-import java.util.List;
 
 /**
  * Created by ophir on 08/01/18.
  */
 public class ShippingService extends AbstractService<ShippingModel> {
 
-    public ShippingService(BlockChain blockChain, List<AbstractTransaction> cache, ServerProcess server) {
+    public ShippingService(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         super(blockChain, cache, server, ShippingModel.class);
     }
 

@@ -68,7 +68,7 @@ public class ServerMain {
             // 4. Open Http server and connect [inject] the server to Services.
             final HttpServer httpServer = buildHttpServer(httpPort);
             System.out.println("Starting HTTP server on address = " + BASE_URI);
-            httpServer.start();
+            // httpServer.start();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(9);

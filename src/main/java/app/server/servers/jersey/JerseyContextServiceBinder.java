@@ -2,12 +2,9 @@ package app.server.servers.jersey;
 
 import app.server.ServerMain;
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
-import app.server.servers.jersey.model.AbstractTransaction;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ophir on 10/01/18.
@@ -15,12 +12,13 @@ import java.util.List;
 public class JerseyContextServiceBinder extends AbstractBinder {
     @Override
     protected void configure() {
+        System.out.println("----    Injecting Dependencies To Servers    ----");
         // So that all services will have the same app.server.blockchain
         bind(new BlockChain()).to(BlockChain.class);
 
         // And so that all services will have the same cache
-        List<AbstractTransaction> cacheList = new ArrayList<>();
-        bind(cacheList).to(List.class);
+        TransactionCache cache = new TransactionCache();
+        bind(cache).to(TransactionCache.class);
 
         // Also, binding server to services.
         bind(ServerMain.server).to(ServerProcess.class);

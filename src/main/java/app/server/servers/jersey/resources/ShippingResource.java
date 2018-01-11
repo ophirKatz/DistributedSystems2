@@ -1,8 +1,8 @@
 package app.server.servers.jersey.resources;
 
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
-import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.ShippingModel;
 import app.server.servers.jersey.services.ShippingService;
 
@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 import static app.server.servers.jersey.resources.ShippingResource.baseMapping;
 
@@ -27,7 +26,7 @@ public class ShippingResource extends AbstractResource<ShippingService> {
     public static final String pid = "portId";
 
     @Inject
-    public ShippingResource(BlockChain blockChain, List<AbstractTransaction> cache, ServerProcess server) {
+    public ShippingResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         this.service = new ShippingService(blockChain, cache, server);
     }
 
@@ -66,12 +65,12 @@ public class ShippingResource extends AbstractResource<ShippingService> {
     @GET
     @Path("/numberOfShipments")
     public String getNumberOfShipments(@QueryParam(sid) String shipId) {
-        return String.valueOf(service.getNumberOfShipmentsForShip(shipId));
+        return "Number of times ship with id = " + shipId + " has left a port is : " + String.valueOf(service.getNumberOfShipmentsForShip(shipId));
     }
 
     @GET
     @Path("/numberOfArrivals")
     public String getNumberOfArrivals(@QueryParam(sid) String shipId) {
-        return String.valueOf(service.getNumberOfArrivalsForShip(shipId));
+        return "Number of times ship with id = " + shipId + " has arrived a port is : " + String.valueOf(service.getNumberOfArrivalsForShip(shipId));
     }
 }

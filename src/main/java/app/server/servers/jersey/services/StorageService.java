@@ -1,11 +1,11 @@
 package app.server.servers.jersey.services;
 
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.StorageModel;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class StorageService extends AbstractService<StorageModel> {
 
-    public StorageService(BlockChain blockChain, List<AbstractTransaction> cache, ServerProcess server) {
+    public StorageService(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         super(blockChain, cache, server, StorageModel.class);
     }
 
@@ -26,7 +26,7 @@ public class StorageService extends AbstractService<StorageModel> {
      * return the id of the container that contains the item with the given id.
      */
     public String getIdOfItemContainer(String itemId) {
-        String containerId = null;
+        String containerId = "containerId";
         for (AbstractTransaction transaction : getAllTransactionsInBlockChainByModelClass(StorageModel.class)
                 .stream().filter(t -> ((StorageModel) t).getItemID().equals(itemId))
                 .collect(Collectors.toList())) {

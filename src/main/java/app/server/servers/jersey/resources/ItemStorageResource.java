@@ -1,8 +1,8 @@
 package app.server.servers.jersey.resources;
 
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
-import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.StorageModel;
 import app.server.servers.jersey.services.StorageService;
 
@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 import static app.server.servers.jersey.resources.ItemStorageResource.baseMapping;
 
@@ -26,7 +25,7 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     public static final String iid = "itemId";
 
     @Inject
-    public ItemStorageResource(BlockChain blockChain, List<AbstractTransaction> cache, ServerProcess server) {
+    public ItemStorageResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         this.service = new StorageService(blockChain, cache, server);
     }
 
@@ -65,12 +64,12 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     @GET
     @Path("/getContainerId")
     public String getContainerId(@QueryParam(iid) String itemId) {
-        return service.getIdOfItemContainer(itemId);
+        return "Container id of item with id = " + itemId + " is : " + service.getIdOfItemContainer(itemId);
     }
 
     @GET
     @Path("/numberOfItems")
     public String getNumberOfItems(@QueryParam(cid) String containerId) {
-        return String.valueOf(service.getNumberOfItemsInContainer(containerId));
+        return "Number of items in container with id = " + containerId + " is : " + String.valueOf(service.getNumberOfItemsInContainer(containerId));
     }
 }

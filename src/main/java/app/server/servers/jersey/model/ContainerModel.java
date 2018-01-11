@@ -15,10 +15,11 @@ public class ContainerModel extends AbstractTransaction {
         LOADING,
         UNLOADING
     }
-    private String containerID;
 
+    private String containerID;
     private String shipID;
     private ContainmentType containmentType;
+
     public ContainmentType getContainmentType() {
         return containmentType;
     }

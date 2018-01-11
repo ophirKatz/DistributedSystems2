@@ -2,6 +2,7 @@ package app.server.servers.jersey.services;
 
 import app.server.blockchain.Block;
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.AbstractTransaction;
 import com.google.gson.Gson;
@@ -49,14 +50,12 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
                 AbstractTransaction transaction = (AbstractTransaction) gson.fromJson(msg.getObject().toString(), service.modelType);
 
                 // 2. Add transaction to cache.
-                service.transactionCache.add(transaction);
+                service.transactionCache.addTransaction(transaction);
 
                 // 3. If the cache is full, create a block and empty the cache.
-                if (service.transactionCache.size() >= cacheThreshold) {
+                if (service.transactionCache.isFull()) {
                     // Then cache is full - empty it and create block.
-                    Block block = new Block(service.transactionCache, String.valueOf(currentBlockId++));
-                    // Clearing the cache
-                    service.transactionCache.clear();
+                    Block block = new Block(service.transactionCache.cacheOut(), String.valueOf(currentBlockId++));
 
                     // 4. Insert block to blockchain
                     service.blockChain.addBlock(block);
@@ -102,11 +101,12 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
 
 
     protected BlockChain blockChain;
-    protected List<AbstractTransaction> transactionCache;
+    //protected List<AbstractTransaction> transactionCache;
+    protected TransactionCache transactionCache;
     protected ServerProcess server;
     private Class<? extends AbstractTransaction> modelType;
 
-    protected AbstractService(BlockChain blockChain, List<AbstractTransaction> cache, ServerProcess server, Class<? extends AbstractTransaction> modelType) {
+    protected AbstractService(BlockChain blockChain, TransactionCache cache, ServerProcess server, Class<? extends AbstractTransaction> modelType) {
         this.blockChain = blockChain;
         this.transactionCache = cache;
         this.server = server;

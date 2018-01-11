@@ -1,19 +1,15 @@
 package app.server.servers.jersey.resources;
 
 import app.server.blockchain.BlockChain;
+import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
-import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.ContainerModel;
 import app.server.servers.jersey.services.ContainerService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.List;
 
 import static app.server.servers.jersey.resources.ContainerResource.baseMapping;
 
@@ -22,6 +18,7 @@ import static app.server.servers.jersey.resources.ContainerResource.baseMapping;
  */
 @Path(baseMapping)
 @Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.TEXT_PLAIN)
 public class ContainerResource extends AbstractResource<ContainerService> {
     public static final String baseMapping = "/containers";
 
@@ -29,7 +26,7 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     private static final String sid = "shipId";
 
     @Inject
-    public ContainerResource(BlockChain blockChain, List<AbstractTransaction> cache, ServerProcess server) {
+    public ContainerResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         this.service = new ContainerService(blockChain, cache, server);
     }
 
@@ -41,11 +38,16 @@ public class ContainerResource extends AbstractResource<ContainerService> {
         return model;
     }
 
+    @GET
+    @Path("/getit")
+    public String getIt(String s) {
+        System.out.println("-------------   In getIt function mapping   -------------");
+        return "Got it!";
+    }
+
     @POST
     @Path("/load")
-    public /*Response*/ String loadContainerOnShip(ContainerModel container, @Context UriInfo uriInfo) {
-        URI uri = uriInfo.getAbsolutePathBuilder().path(container.getContainerID()).build();
-        System.out.println("Response status : " + Response.created(uri).build().getStatus());
+    public String loadContainerOnShip(ContainerModel container) {
         ContainerModel model = createModel(container.getContainerID(), container.getShipID(), ContainerModel.ContainmentType.LOADING);
         System.out.println("In loadContainerOnShip. Path is : ");
         try {
@@ -74,13 +76,13 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     @GET
     @Path("/getShipId")
     public String getShipId(@QueryParam(cid) String containerId) {
-        return service.getShipIdForContainer(containerId);
+        return "Ship id of container with id = " + containerId + " is : " + service.getShipIdForContainer(containerId);
     }
 
     @GET
     @Path("/getNumberOfTransfers")
     public String getNumberOfTransfers(@QueryParam(cid) String containerId) {
-        return String.valueOf(service.getNumberOfTransfersForContainer(containerId));
+        return "Number of transfer of the container with id = " + containerId + " is : " + String.valueOf(service.getNumberOfTransfersForContainer(containerId));
     }
 }
 
