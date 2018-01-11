@@ -16,24 +16,25 @@ public class ShipChainApplication {
 
     private static Options setupCliOptions() {
         Options options = new Options();
-        options.addOption("-start", true, "starts the application as the server or client");
-        options.addOption("-id", true, "id of the server being run");
-        options.addOption("-port", true, "port of the server being run");
+        options.addOption("start", true, "starts the application as the server or client");
+        options.addOption("id", true, "id of the server being run");
+        options.addOption("port", true, "port of the server being run");
 
         return options;
     }
 
     public static void main(String[] args) {
+        // new JHades().overlappingJarsReport();
         CommandLineParser parser = new DefaultParser();
         try {
             CommandLine cmd = parser.parse(setupCliOptions(), args);
-            if (!cmd.hasOption("-start")) {
+            if (!cmd.hasOption("start")) {
                 usage();
             }
-            String startAs = cmd.getOptionValue("-start");
+            String startAs = cmd.getOptionValue("start");
             switch (startAs) {
                 case "server":
-                    ServerMain.main(args, cmd);
+                    ServerMain.main(cmd);
                     break;
                 case "client":
                     ClientMain.main(args);

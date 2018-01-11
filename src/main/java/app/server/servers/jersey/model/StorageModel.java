@@ -20,6 +20,11 @@ public class StorageModel extends AbstractTransaction {
     private String containerID;
     private String itemID;
 
+    public StorageModel(String containerID, String itemID) {
+        this.containerID = containerID;
+        this.itemID = itemID;
+    }
+
     public StorageType getStorageType() {
         return storageType;
     }

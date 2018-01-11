@@ -10,7 +10,7 @@ import org.jgroups.ReceiverAdapter;
  * Created by ophir on 01/01/18.
  */
 public class ServerGroup {
-    private static final String props = "/home/ophir/Desktop/studies/semester7/distributed_systems/hw/hw2/DistributedSystems2/src/launch/resources/channel.xml";
+    // private static final String props = "/home/ophir/Desktop/studies/semester7/distributed_systems/hw/hw2/DistributedSystems2/src/launch/resources/channel.xml";
     private static final String clusterName = "ServerCluster";
 
     // The channel all app.server.servers will be connected to.
@@ -18,11 +18,11 @@ public class ServerGroup {
     private ReceiverAdapter receiverAdapter;
 
     public ServerGroup() throws Exception {
-        channel = new JChannel(props);
+        channel = new JChannel();
     }
 
     public ServerGroup(ReceiverAdapter adapter) throws Exception {
-        channel = new JChannel(props);
+        channel = new JChannel();
         this.receiverAdapter = adapter;
         channel.setReceiver(adapter);
     }

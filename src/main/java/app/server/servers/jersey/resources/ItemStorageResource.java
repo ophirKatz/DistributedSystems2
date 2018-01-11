@@ -7,10 +7,8 @@ import app.server.servers.jersey.model.StorageModel;
 import app.server.servers.jersey.services.StorageService;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -20,6 +18,7 @@ import static app.server.servers.jersey.resources.ItemStorageResource.baseMappin
  * Created by ophir on 08/01/18.
  */
 @Path(baseMapping)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ItemStorageResource extends AbstractResource<StorageService> {
     public static final String baseMapping = "/storage";
 
@@ -40,10 +39,9 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     }
 
     @POST
-    @Path("store")
-    public Response insertItemToContainer(@QueryParam(cid) String containerId,
-                                          @QueryParam(iid) String itemId) {
-        StorageModel model = createModel(containerId, itemId, StorageModel.StorageType.STORE);
+    @Path("/store")
+    public Response insertItemToContainer(StorageModel storageModel) {
+        StorageModel model = createModel(storageModel.getContainerID(), storageModel.getItemID(), StorageModel.StorageType.STORE);
         try {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
@@ -53,10 +51,9 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     }
 
     @POST
-    @Path("remove")
-    public Response removeItemFromContainer(@QueryParam(cid) String containerId,
-                                            @QueryParam(iid) String itemId) {
-        StorageModel model = createModel(containerId, itemId, StorageModel.StorageType.REMOVE);
+    @Path("/remove")
+    public Response removeItemFromContainer(StorageModel storageModel) {
+        StorageModel model = createModel(storageModel.getContainerID(), storageModel.getItemID(), StorageModel.StorageType.REMOVE);
         try {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
@@ -66,13 +63,13 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     }
 
     @GET
-    @Path("getContainerId")
+    @Path("/getContainerId")
     public String getContainerId(@QueryParam(iid) String itemId) {
         return service.getIdOfItemContainer(itemId);
     }
 
     @GET
-    @Path("numberOfItems")
+    @Path("/numberOfItems")
     public String getNumberOfItems(@QueryParam(cid) String containerId) {
         return String.valueOf(service.getNumberOfItemsInContainer(containerId));
     }

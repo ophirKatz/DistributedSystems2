@@ -1,9 +1,11 @@
 package app.client;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 import javafx.util.Pair;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,10 +17,14 @@ import java.io.InputStreamReader;
  */
 public class ClientMain {
 
+    public static final int HTTP_CREATED = 201;
+
     private enum ActionType {
         ADD,
         QUERY
     }
+
+    public static final String port = "8181";
 
     private static Pair<ActionType, String> getUserInput() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -42,20 +48,24 @@ public class ClientMain {
     }
 
     private static void handleUserInput(final String path, final ActionType actionType) {
-        Client client = Client.create();
+        Client client = ClientBuilder.newClient();
+        String applicationPath = "/shipchain";
+        Invocation.Builder builder = client.target("http://localhost:" + port + applicationPath)
+                .path(path)
+                .request(MediaType.APPLICATION_JSON);
         switch (actionType) {
             case ADD:   // POST
-                WebResource postRequest = client.resource("http://localhost:8080" + path);
-                Response response = postRequest.post(Response.class, postRequest);
-                if (response.getStatus() != 201) {
+                //Form form = new Form().param()
+                Response response = builder.post(null);
+                //Response response = builder.post(Entity.form(form));
+                if (response.getStatus() != HTTP_CREATED) {
                     System.out.println("ERROR for response");
                     System.exit(1);
                 }
                 break;
 
             case QUERY: // GET
-                WebResource getRequest = client.resource("http://localhost:8080" + path);
-                String stringResponse = getRequest.getRequestBuilder().get(String.class);
+                String stringResponse = builder.get(String.class);
                 System.out.println("*****************************************************\n");
                 System.out.println("The response from the server was : " + stringResponse);
                 System.out.println("\n*****************************************************");

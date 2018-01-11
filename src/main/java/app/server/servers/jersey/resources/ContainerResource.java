@@ -7,11 +7,12 @@ import app.server.servers.jersey.model.ContainerModel;
 import app.server.servers.jersey.services.ContainerService;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.List;
 
 import static app.server.servers.jersey.resources.ContainerResource.baseMapping;
@@ -20,6 +21,7 @@ import static app.server.servers.jersey.resources.ContainerResource.baseMapping;
  * Created by ophir on 08/01/18.
  */
 @Path(baseMapping)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ContainerResource extends AbstractResource<ContainerService> {
     public static final String baseMapping = "/containers";
 
@@ -40,24 +42,27 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     }
 
     @POST
-    @Path("load")
-    public Response loadContainerOnShip(@QueryParam(cid) String containerId,
-                                        @QueryParam(sid) String shipId) {
-        ContainerModel model = createModel(containerId, shipId, ContainerModel.ContainmentType.LOADING);
+    @Path("/load")
+    public /*Response*/ String loadContainerOnShip(ContainerModel container, @Context UriInfo uriInfo) {
+        URI uri = uriInfo.getAbsolutePathBuilder().path(container.getContainerID()).build();
+        System.out.println("Response status : " + Response.created(uri).build().getStatus());
+        ContainerModel model = createModel(container.getContainerID(), container.getShipID(), ContainerModel.ContainmentType.LOADING);
+        System.out.println("In loadContainerOnShip. Path is : ");
         try {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
+            System.exit(1);
             e.printStackTrace();
         }
         // TODO : check if just returning ok is fine or not
-        return Response.ok().build();
+        //return Response.ok().build();
+        return "Hello Ophir";
     }
 
     @POST
-    @Path("unload")
-    public Response unloadContainerFromShip(@QueryParam(cid) String containerId,
-                                            @QueryParam(sid) String shipId) {
-        ContainerModel model = createModel(containerId, shipId, ContainerModel.ContainmentType.UNLOADING);
+    @Path("/unload")
+    public Response unloadContainerFromShip(ContainerModel container) {
+        ContainerModel model = createModel(container.getContainerID(), container.getShipID(), ContainerModel.ContainmentType.UNLOADING);
         try {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
@@ -67,13 +72,13 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     }
 
     @GET
-    @Path("getShipId")
+    @Path("/getShipId")
     public String getShipId(@QueryParam(cid) String containerId) {
         return service.getShipIdForContainer(containerId);
     }
 
     @GET
-    @Path("getNumberOfTransfers")
+    @Path("/getNumberOfTransfers")
     public String getNumberOfTransfers(@QueryParam(cid) String containerId) {
         return String.valueOf(service.getNumberOfTransfersForContainer(containerId));
     }

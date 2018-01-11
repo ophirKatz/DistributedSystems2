@@ -32,7 +32,6 @@ public class ProcessNode implements Runnable {
     private String leaderNodePath;
 
     private ServerProcess server;
-    private String nodePath;
 
     public ServerProcess getServer() {
         return server;
@@ -43,7 +42,7 @@ public class ProcessNode implements Runnable {
     }
 
     public String getNodePath() {
-        return nodePath;
+        return processNodePath;
     }
 
     public String getLeaderNodePath() {
@@ -66,7 +65,7 @@ public class ProcessNode implements Runnable {
             System.out.println("[Process: " + id + "] I am the new leader!");
 
             leaderNodePath = processNodePath;
-            if (updateLeader) {
+            if (updateLeader && server != null) {
                 server.updateLeader(leaderNodePath);
             } // else - server not initialized
         } else {
@@ -103,6 +102,7 @@ public class ProcessNode implements Runnable {
             attemptForLeaderPosition(false);
         } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
+            System.exit(4);
         }
     }
 
@@ -123,6 +123,7 @@ public class ProcessNode implements Runnable {
                         attemptForLeaderPosition(true);
                     } catch (KeeperException | InterruptedException e) {
                         e.printStackTrace();
+                        System.exit(5);
                     }
                 }
             }

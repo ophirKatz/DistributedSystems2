@@ -17,8 +17,9 @@ public class LeaderElectionLauncher {
 
     private static final String localhost = "127.0.0.1";
 
-    public static ProcessNode launch(final int id, final int port) throws IOException {
-        final String zkURL = localhost + ":" + String.valueOf(port);
+    public static ProcessNode launch(final int id) throws IOException {
+        final int zkPort = 2181;
+        final String zkURL = localhost + ":" + String.valueOf(zkPort);
 
         final ExecutorService service = Executors.newSingleThreadExecutor();
         ProcessNode task = new ProcessNode(id, zkURL);
@@ -28,6 +29,7 @@ public class LeaderElectionLauncher {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             service.shutdown();
+            System.exit(2);
         }
         return task;
     }

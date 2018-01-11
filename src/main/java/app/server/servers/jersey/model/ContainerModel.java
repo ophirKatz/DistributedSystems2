@@ -13,7 +13,7 @@ public class ContainerModel extends AbstractTransaction {
 
     public enum ContainmentType {
         LOADING,
-        UNLOADING;
+        UNLOADING
     }
     private String containerID;
 
@@ -21,6 +21,14 @@ public class ContainerModel extends AbstractTransaction {
     private ContainmentType containmentType;
     public ContainmentType getContainmentType() {
         return containmentType;
+    }
+
+    public ContainerModel() {
+    }
+
+    public ContainerModel(String containerID, String shipID) {
+        this.containerID = containerID;
+        this.shipID = shipID;
     }
 
     public void setContainmentType(ContainmentType containmentType) {

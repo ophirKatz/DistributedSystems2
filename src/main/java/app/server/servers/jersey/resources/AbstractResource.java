@@ -7,5 +7,7 @@ import app.server.servers.jersey.services.AbstractService;
  */
 public class AbstractResource<ServiceType extends AbstractService> {
 
+    protected static final String applicationPath = "/shipchain";
+
     protected ServiceType service;
 }

@@ -19,7 +19,7 @@ import java.net.URI;
  */
 public class ServerMain {
 
-    private static String BASE_URI = "http://localhost:<port>/shipchain.ds";
+    private static String BASE_URI = "http://localhost:<port>/shipchain/";
 
     private static HttpServer buildHttpServer(int port) {
         // Assigning BASE_URI with root uri for specific port of server.
@@ -32,7 +32,7 @@ public class ServerMain {
                 .register(ContainerResource.class)
                 .register(ItemStorageResource.class)
                 .register(ShippingResource.class)
-                .packages("app.server.servers.jersey.resources");
+                .packages(true, "app");
 
         // Creating the http server with the resource config and the jersey DI binding module.
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
@@ -46,18 +46,18 @@ public class ServerMain {
 
     public static ServerProcess server;
 
-    public static void main(String[] args, CommandLine cmd) {
+    public static void main(CommandLine cmd) {
         try {
             // 0. Get arguments.
-            if (!cmd.hasOption("-id") || !cmd.hasOption("-port")) {
+            if (!cmd.hasOption("id") || !cmd.hasOption("port")) {
                 usage();
             }
 
-            final int id = Integer.parseInt(cmd.getOptionValue("-id"));
-            final int port = Integer.parseInt(cmd.getOptionValue("-port"));
+            final int id = Integer.parseInt(cmd.getOptionValue("id"));
+            final int httpPort = Integer.parseInt(cmd.getOptionValue("port"));
 
             // 1. Run leader election.
-            ProcessNode processNode = LeaderElectionLauncher.launch(id, port);
+            ProcessNode processNode = LeaderElectionLauncher.launch(id);
 
             // 2. Open the server, connect to ServerGroup.
             ServerMain.server = new ServerProcess(processNode.getNodePath(), processNode.getLeaderNodePath());
@@ -66,11 +66,12 @@ public class ServerMain {
             processNode.setServer(ServerMain.server);
 
             // 4. Open Http server and connect [inject] the server to Services.
-            final HttpServer httpServer = buildHttpServer(port);
+            final HttpServer httpServer = buildHttpServer(httpPort);
+            System.out.println("Starting HTTP server on address = " + BASE_URI);
             httpServer.start();
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(1);
+            System.exit(9);
         } finally {
             if (ServerMain.server != null) ServerMain.server.leaveGroup();
         }

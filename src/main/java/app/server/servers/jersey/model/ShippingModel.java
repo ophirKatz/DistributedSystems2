@@ -32,8 +32,14 @@ public class ShippingModel extends AbstractTransaction {
     public ShippingModel() {
     }
 
+    public ShippingModel(String shipID, String portID) {
+        this.shipID = shipID;
+        this.portID = portID;
+    }
+
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
