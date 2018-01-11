@@ -9,7 +9,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -128,13 +127,16 @@ public class ClientMain {
         String resourceQuery = br.readLine();
         String query = baseMapping + "/" + resourceQuery;
 
-        String stringResponse = client.target("http://localhost:" + port + applicationPath)
-                .path(query)
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class);
-        System.out.println("*****************************************************\n");
-        System.out.println("The response from the server was : " + stringResponse);
-        System.out.println("\n*****************************************************");
+        String request = "http://localhost:" + port + applicationPath + query;
+        System.out.println("Run request <" + request + "> on the server? [y/n]");
+        if (br.readLine().equals("y")) {
+            String stringResponse = client.target(request)
+                    .request()
+                    .get(String.class);
+            System.out.println("*****************************************************\n");
+            System.out.println("The response from the server was : " + stringResponse);
+            System.out.println("\n*****************************************************");
+        }
     }
 
     private static boolean getUserInputAndPerformAction() throws IOException {
@@ -166,11 +168,15 @@ public class ClientMain {
         while (true) {
             try {
                 if (!getUserInputAndPerformAction()) {
+                    System.out.println("Stopping the client service");
+                    Thread.sleep(100);
                     break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 System.exit(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }

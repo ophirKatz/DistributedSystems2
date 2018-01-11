@@ -10,4 +10,8 @@ public class AbstractResource<ServiceType extends AbstractService> {
     protected static final String applicationPath = "/shipchain";
 
     protected ServiceType service;
+
+    protected void setReceiversByService() {
+        service.setReceiversForServerProcess();
+    }
 }

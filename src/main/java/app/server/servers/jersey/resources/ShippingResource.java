@@ -28,6 +28,7 @@ public class ShippingResource extends AbstractResource<ShippingService> {
     @Inject
     public ShippingResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         this.service = new ShippingService(blockChain, cache, server);
+        this.setReceiversByService();
     }
 
     private static ShippingModel createModel(String shipId, String portId, ShippingModel.ShipmentType type) {
@@ -46,6 +47,7 @@ public class ShippingResource extends AbstractResource<ShippingService> {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         return Response.ok().build();
     }
@@ -58,6 +60,7 @@ public class ShippingResource extends AbstractResource<ShippingService> {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         return Response.ok().build();
     }

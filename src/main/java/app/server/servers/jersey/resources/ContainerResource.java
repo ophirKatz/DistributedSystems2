@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 import static app.server.servers.jersey.resources.ContainerResource.baseMapping;
 
@@ -28,6 +29,7 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     @Inject
     public ContainerResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         this.service = new ContainerService(blockChain, cache, server);
+        this.setReceiversByService();
     }
 
     private static ContainerModel createModel(String containerId, String shipId, ContainerModel.ContainmentType type) {
@@ -38,27 +40,18 @@ public class ContainerResource extends AbstractResource<ContainerService> {
         return model;
     }
 
-    @GET
-    @Path("/getit")
-    public String getIt(String s) {
-        System.out.println("-------------   In getIt function mapping   -------------");
-        return "Got it!";
-    }
-
     @POST
     @Path("/load")
-    public String loadContainerOnShip(ContainerModel container) {
+    public Response loadContainerOnShip(ContainerModel container) {
         ContainerModel model = createModel(container.getContainerID(), container.getShipID(), ContainerModel.ContainmentType.LOADING);
-        System.out.println("In loadContainerOnShip. Path is : ");
         try {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
-            System.exit(1);
             e.printStackTrace();
+            System.exit(1);
         }
         // TODO : check if just returning ok is fine or not
-        //return Response.ok().build();
-        return "Hello Ophir";
+        return Response.ok().build();
     }
 
     @POST
@@ -69,6 +62,7 @@ public class ContainerResource extends AbstractResource<ContainerService> {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         return Response.ok().build();
     }
@@ -76,7 +70,9 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     @GET
     @Path("/getShipId")
     public String getShipId(@QueryParam(cid) String containerId) {
-        return "Ship id of container with id = " + containerId + " is : " + service.getShipIdForContainer(containerId);
+        Optional<String> shipIdForContainer = service.getShipIdForContainer(containerId);
+        return shipIdForContainer.map(s -> "Ship id of container with id = " + containerId + " is : " + s)
+                .orElseGet(() -> "No container with id = " + containerId + " was found");
     }
 
     @GET

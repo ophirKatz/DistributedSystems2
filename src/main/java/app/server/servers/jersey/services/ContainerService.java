@@ -6,6 +6,7 @@ import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.ContainerModel;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,12 +26,12 @@ public class ContainerService extends AbstractService<ContainerModel> {
     /**
      * returns the id of the ship that the container with the id is loaded on.
      */
-    public String getShipIdForContainer(String containerId) {
-        String shipId = "shipId";
+    public Optional<String> getShipIdForContainer(String containerId) {
+        Optional<String> shipId = Optional.empty();
         for (AbstractTransaction transaction : getAllTransactionsInBlockChainByModelClass(ContainerModel.class)
                 .stream().filter(t -> ((ContainerModel) t).getContainerID().equals(containerId))
                 .collect(Collectors.toList())) {
-            shipId = ((ContainerModel) transaction).getShipID();
+            shipId = Optional.of(((ContainerModel) transaction).getShipID());
         }
         return shipId;
     }

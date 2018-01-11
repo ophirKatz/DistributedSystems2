@@ -112,6 +112,10 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
         this.server = server;
         this.modelType = modelType;
 
+        this.setReceiversForServerProcess();
+    }
+
+    public void setReceiversForServerProcess() {
         // Link server to receivers
         ServerProcess.leaderReceiver = new LeaderReceiver(this);
         ServerProcess.nonLeaderReceiver = new NonLeaderReceiver(this);

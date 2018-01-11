@@ -1,6 +1,7 @@
 package app.server.servers.communication;
 
 import app.server.blockchain.Block;
+import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.AbstractTransaction;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
@@ -19,12 +20,15 @@ public class ServerGroup {
 
     public ServerGroup() throws Exception {
         channel = new JChannel();
+        channel.setName(clusterName);
+        channel.addAddressGenerator(ServerProcess.nodeAddressGenerator);
     }
 
     public ServerGroup(ReceiverAdapter adapter) throws Exception {
         channel = new JChannel();
-        this.receiverAdapter = adapter;
-        channel.setReceiver(adapter);
+        channel.setName(clusterName);
+        channel.addAddressGenerator(ServerProcess.nodeAddressGenerator);
+        setReceiverAdapter(adapter);
     }
 
     public void setReceiverAdapter(ReceiverAdapter receiverAdapter) {
@@ -45,10 +49,12 @@ public class ServerGroup {
     }
 
     public void sendTransactionToLeader(NodeAddress nodeAddress, AbstractTransaction transaction) throws Exception {
-        channel.send(new Message(nodeAddress, transaction.toString()));
+        String jsonTransaction = transaction.toString();
+        channel.send(new Message(nodeAddress, jsonTransaction));
     }
 
     public void closeGroup() {
+        channel.disconnect();
         channel.close();
     }
 }

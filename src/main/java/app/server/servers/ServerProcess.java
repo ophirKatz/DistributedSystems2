@@ -5,6 +5,8 @@ import app.server.servers.communication.NodeAddress;
 import app.server.servers.communication.ServerGroup;
 import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.services.AbstractService;
+import org.jgroups.Address;
+import org.jgroups.stack.AddressGenerator;
 
 /**
  * Created by ophir on 09/01/18.
@@ -15,6 +17,22 @@ public class ServerProcess {
     private NodeAddress nodeAddress;
 
     private NodeAddress leaderNodeAddress;
+
+    public static class NodeAddressGenerator implements AddressGenerator {
+
+        private NodeAddress processNodeAddress;
+
+        public NodeAddressGenerator(String processNodePath) {
+            this.processNodeAddress = new NodeAddress(processNodePath);
+        }
+
+        @Override
+        public Address generateAddress() {
+            return processNodeAddress;
+        }
+    }
+
+    public static NodeAddressGenerator nodeAddressGenerator;
 
     public static AbstractService.LeaderReceiver leaderReceiver;
     public static AbstractService.NonLeaderReceiver nonLeaderReceiver;
@@ -41,6 +59,7 @@ public class ServerProcess {
     }
 
     public ServerProcess(String nodePath, String leaderNodePath) throws Exception {
+        ServerProcess.nodeAddressGenerator = new NodeAddressGenerator(nodePath);
         this.serverGroup = new ServerGroup();
         this.nodeAddress = new NodeAddress(nodePath);
         this.leaderNodeAddress = new NodeAddress(leaderNodePath);
@@ -50,11 +69,12 @@ public class ServerProcess {
     }
 
     public void sendToLeader(AbstractTransaction transaction) throws Exception {
-        // Save data
+        setReceiver();
         this.serverGroup.sendTransactionToLeader(leaderNodeAddress, transaction);
     }
 
     public void distributeBlock(Block block) throws Exception {
+        setReceiver();
         this.serverGroup.publishBlockToGroup(block);
     }
 

@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 import static app.server.servers.jersey.resources.ItemStorageResource.baseMapping;
 
@@ -27,6 +28,7 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     @Inject
     public ItemStorageResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
         this.service = new StorageService(blockChain, cache, server);
+        this.setReceiversByService();
     }
 
     private static StorageModel createModel(String containerId, String itemId, StorageModel.StorageType type) {
@@ -45,6 +47,7 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         return Response.ok().build();
     }
@@ -57,6 +60,7 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
             service.attemptToExpandBlockChain(model);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         return Response.ok().build();
     }
@@ -64,7 +68,9 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     @GET
     @Path("/getContainerId")
     public String getContainerId(@QueryParam(iid) String itemId) {
-        return "Container id of item with id = " + itemId + " is : " + service.getIdOfItemContainer(itemId);
+        Optional<String> idOfItemContainer = service.getIdOfItemContainer(itemId);
+        return idOfItemContainer.map(i -> "Container id of item with id = " + itemId + " is : " + i)
+                .orElseGet(() -> "No item with id = " + itemId + " was found");
     }
 
     @GET

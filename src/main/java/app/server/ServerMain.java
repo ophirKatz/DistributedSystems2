@@ -21,7 +21,7 @@ public class ServerMain {
 
     private static String BASE_URI = "http://localhost:<port>/shipchain/";
 
-    private static HttpServer buildHttpServer(int port) {
+    private static HttpServer startHttpServer(int port) {
         // Assigning BASE_URI with root uri for specific port of server.
         BASE_URI = BASE_URI.replace("<port>", String.valueOf(port));
 
@@ -66,9 +66,9 @@ public class ServerMain {
             processNode.setServer(ServerMain.server);
 
             // 4. Open Http server and connect [inject] the server to Services.
-            final HttpServer httpServer = buildHttpServer(httpPort);
+            startHttpServer(httpPort);
             System.out.println("Starting HTTP server on address = " + BASE_URI);
-            // httpServer.start();
+            while (true) ;
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(9);
