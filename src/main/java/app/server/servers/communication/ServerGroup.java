@@ -11,8 +11,7 @@ import org.jgroups.ReceiverAdapter;
  * Created by ophir on 01/01/18.
  */
 public class ServerGroup {
-    // private static final String props = "/home/ophir/Desktop/studies/semester7/distributed_systems/hw/hw2/DistributedSystems2/src/launch/resources/channel.xml";
-    private static final String clusterName = "ServerCluster";
+    public static final String clusterName = "SERVER_CLUSTER";
 
     // The channel all app.server.servers will be connected to.
     private JChannel channel;
@@ -42,6 +41,8 @@ public class ServerGroup {
 
     public void connectToGroup() throws Exception {
         channel.connect(clusterName);
+        System.out.println("############ All members of group : ");
+        channel.getView().getMembers().forEach(System.out::println);
     }
 
     public void publishBlockToGroup(Block block) throws Exception {

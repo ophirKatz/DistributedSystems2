@@ -14,7 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static app.Utils.serverPort;
+import static app.Utils.findRandomServerPortToConnectTo;
 
 
 /**
@@ -25,6 +25,7 @@ public class ClientMain {
     public static final int HTTP_CREATED = 201;
 
     private static final String applicationPath = "/shipchain";
+
     public static final int HTTP_CREATE = 201;
 
     private enum ActionType {
@@ -32,7 +33,18 @@ public class ClientMain {
         QUERY
     }
 
-    public static final String port = serverPort;
+    public static String port = null;
+
+    static {
+        // 5 tries to find a server to connect to.
+        for (int i = 0; i < 5 && port == null; i++) {
+            try {
+                port = findRandomServerPortToConnectTo();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private static <TransactionType extends AbstractTransaction> void handlePOST(Client client, String path, TransactionType transaction) {
         WebTarget transactionTarget = client.target("http://localhost:" + port + applicationPath)
