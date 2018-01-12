@@ -14,6 +14,15 @@ import static app.server.servers.communication.ServerGroup.clusterName;
  */
 public class Utils {
 
+    public static class Ser {
+        private String nodePath;
+        private String serverHttpPort = "8888";
+
+        public Ser(String path) {
+            this.nodePath = path;
+        }
+    }
+
     public static String serverPort = "8888";
 
     public static String findRandomServerPortToConnectTo() throws Exception {

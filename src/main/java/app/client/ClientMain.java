@@ -14,36 +14,32 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static app.Utils.findRandomServerPortToConnectTo;
-
 
 /**
  * Created by ophir on 08/01/18.
  */
 public class ClientMain {
 
-    public static final int HTTP_CREATED = 201;
+    public static final int HTTP_OK = 200;
 
     private static final String applicationPath = "/shipchain";
-
-    public static final int HTTP_CREATE = 201;
 
     private enum ActionType {
         ADD,
         QUERY
     }
 
-    public static String port = null;
+    public static String port = "8282";
 
     static {
         // 5 tries to find a server to connect to.
-        for (int i = 0; i < 5 && port == null; i++) {
+        /*for (int i = 0; i < 5 && port == null; i++) {
             try {
                 port = findRandomServerPortToConnectTo();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     private static <TransactionType extends AbstractTransaction> void handlePOST(Client client, String path, TransactionType transaction) {
@@ -52,7 +48,7 @@ public class ClientMain {
         Response response = transactionTarget
                 .request()
                 .post(Entity.json(transaction));
-        if (response.getStatus() != HTTP_CREATE) {
+        if (response.getStatus() != HTTP_OK) {
             System.out.println("Error Code : " + response.getStatus());
         }
         System.out.println(response.readEntity(String.class));

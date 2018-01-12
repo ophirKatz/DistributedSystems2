@@ -3,7 +3,6 @@ package app.server.servers.communication;
 import app.Utils;
 import com.google.gson.Gson;
 import org.jgroups.Address;
-import org.jgroups.conf.ClassConfigurator;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,7 +13,7 @@ import java.io.DataOutput;
 public class NodeAddress implements Address {
 
     static {
-        ClassConfigurator.add((short) 5555, NodeAddress.class);
+        // ClassConfigurator.add((short) 5555, NodeAddress.class);
     }
 
     private String nodePath;

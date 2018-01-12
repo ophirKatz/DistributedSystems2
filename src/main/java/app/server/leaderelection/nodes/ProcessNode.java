@@ -3,7 +3,6 @@ package app.server.leaderelection.nodes;
 import app.server.leaderelection.ZooKeeperService;
 import app.server.servers.ServerProcess;
 import org.apache.log4j.Logger;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -55,7 +54,7 @@ public class ProcessNode implements Runnable {
         zooKeeperService = new ZooKeeperService(zkURL, new ProcessNodeWatcher());
     }
 
-    private void attemptForLeaderPosition(boolean updateLeader) throws KeeperException, InterruptedException {
+    private void attemptForLeaderPosition(boolean updateLeader) throws Exception {
         final List<String> childNodePaths = zooKeeperService.getChildren(LEADER_ELECTION_ROOT_NODE, false);
         Collections.sort(childNodePaths);
 
@@ -66,7 +65,7 @@ public class ProcessNode implements Runnable {
 
             leaderNodePath = processNodePath;
             if (updateLeader && server != null) {
-                server.updateLeader(leaderNodePath);
+                server.updateLeaderAddress();
             } // else - server not initialized
         } else {
             // I am not the leader - update in ServerProcess.class
@@ -76,9 +75,6 @@ public class ProcessNode implements Runnable {
             zooKeeperService.watchNode(watchedNodePath, true);
 
             leaderNodePath = childNodePaths.get(0);
-            if (updateLeader) {
-                server.updateLeader(leaderNodePath);
-            }
         }
     }
 
@@ -100,10 +96,14 @@ public class ProcessNode implements Runnable {
         try {
             // When we are just starting, the server isn't build yet. No leader field to update.
             attemptForLeaderPosition(false);
-        } catch (KeeperException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(4);
         }
+    }
+
+    public boolean isLeader() {
+        return processNodePath.equals(leaderNodePath);
     }
 
     public class ProcessNodeWatcher implements Watcher {
@@ -121,7 +121,7 @@ public class ProcessNode implements Runnable {
                     try {
                         // When a process has dies, we do want to update the leader of the server group
                         attemptForLeaderPosition(true);
-                    } catch (KeeperException | InterruptedException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         System.exit(5);
                     }

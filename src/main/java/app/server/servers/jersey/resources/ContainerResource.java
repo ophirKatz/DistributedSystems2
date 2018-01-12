@@ -51,6 +51,7 @@ public class ContainerResource extends AbstractResource<ContainerService> {
             System.exit(1);
         }
         // TODO : check if just returning ok is fine or not
+        System.out.println("Loaded container " + container.getContainerID() + " on ship " + container.getShipID());
         return Response.ok().build();
     }
 
@@ -64,6 +65,8 @@ public class ContainerResource extends AbstractResource<ContainerService> {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println("Unloaded container " + container.getContainerID() + " from ship " + container.getShipID());
         return Response.ok().build();
     }
 

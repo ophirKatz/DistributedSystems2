@@ -49,6 +49,8 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println("Inserted item " + storageModel.getItemID() + " into container " + storageModel.getContainerID());
         return Response.ok().build();
     }
 
@@ -62,6 +64,8 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println("Removed item " + storageModel.getItemID() + " from container " + storageModel.getContainerID());
         return Response.ok().build();
     }
 

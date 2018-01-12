@@ -50,10 +50,9 @@ public class ServerMain {
     public static ServerProcess server;
 
     private static void calculateSerializedSize(String path) {
-        NodeAddress.serializedSize = new Gson().toJson(new Object() {
-            private String nodePath = path;
-            private String serverHttpPort = "8888";
-        }).getBytes().length;
+        Utils.Ser ser = new Utils.Ser(path);
+        String s = new Gson().toJson(ser);
+        NodeAddress.serializedSize = s.getBytes().length;
     }
 
     public static void main(CommandLine cmd) {
@@ -69,9 +68,10 @@ public class ServerMain {
 
             // 1. Run leader election.
             ProcessNode processNode = LeaderElectionLauncher.launch(id);
+            ServerMain.calculateSerializedSize(processNode.getNodePath());
 
             // 2. Open the server, connect to ServerGroup.
-            ServerMain.server = new ServerProcess(processNode.getNodePath(), processNode.getLeaderNodePath());
+            ServerMain.server = new ServerProcess(processNode.isLeader());
 
             // 3. Connect [inject] the server to ProcessNode.
             processNode.setServer(ServerMain.server);

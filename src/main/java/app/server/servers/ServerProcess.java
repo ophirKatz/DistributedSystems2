@@ -6,7 +6,6 @@ import app.server.servers.communication.ServerGroup;
 import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.services.AbstractService;
 import org.jgroups.Address;
-import org.jgroups.stack.AddressGenerator;
 
 /**
  * Created by ophir on 09/01/18.
@@ -17,8 +16,13 @@ public class ServerProcess {
     private NodeAddress nodeAddress;
 
     private NodeAddress leaderNodeAddress;
+    private Address leaderAddress;
 
-    public static class NodeAddressGenerator implements AddressGenerator {
+    public Address getAddress() {
+        return serverGroup.getAddress();
+    }
+
+    /*public static class NodeAddressGenerator implements AddressGenerator {
 
         private NodeAddress processNodeAddress;
 
@@ -30,24 +34,42 @@ public class ServerProcess {
         public Address generateAddress() {
             return processNodeAddress;
         }
-    }
+    }*/
 
-    public static NodeAddressGenerator nodeAddressGenerator;
+    //public static NodeAddressGenerator nodeAddressGenerator;
 
     public static AbstractService.LeaderReceiver leaderReceiver;
     public static AbstractService.NonLeaderReceiver nonLeaderReceiver;
 
-    private void setReceiver() {
-        if (isLeader()) {
+    private void setReceiver(boolean isLeader) {
+        if (isLeader) {
             this.serverGroup.setReceiverAdapter(leaderReceiver);
         } else {
             this.serverGroup.setReceiverAdapter(nonLeaderReceiver);
         }
     }
 
-    public void updateLeader(String leaderNodePath) {
+    /*public void updateLeader(String leaderNodePath) {
         this.leaderNodeAddress = new NodeAddress(leaderNodePath);
-        setReceiver();
+        setReceiver(isLeader);
+    }*/
+
+    /**
+     * Called by the leader itself
+     */
+    public void updateLeaderAddress() throws Exception {
+        this.leaderAddress = serverGroup.getAddress();
+        setReceiver(true);
+        // TODO : Send to others
+        this.serverGroup.publishLeaderAddressToGroup(leaderAddress);
+    }
+
+    /**
+     * Called by another process receiving the leader address from the leader
+     */
+    public void updateLeaderAddress(Address leaderAddress) throws Exception {
+        this.leaderAddress = leaderAddress;
+        setReceiver(false);
     }
 
     public NodeAddress getLeaderNodeAddress() {
@@ -58,28 +80,28 @@ public class ServerProcess {
         return nodeAddress;
     }
 
-    public ServerProcess(String nodePath, String leaderNodePath) throws Exception {
-        ServerProcess.nodeAddressGenerator = new NodeAddressGenerator(nodePath);
+    public ServerProcess(boolean isLeader) throws Exception {
+        // ServerProcess.nodeAddressGenerator = new NodeAddressGenerator(nodePath);
         this.serverGroup = new ServerGroup();
-        this.nodeAddress = new NodeAddress(nodePath);
-        this.leaderNodeAddress = new NodeAddress(leaderNodePath);
+        // this.nodeAddress = new NodeAddress(nodePath);
+        // this.leaderNodeAddress = new NodeAddress(leaderNodePath);
         this.serverGroup.connectToGroup();
 
-        setReceiver();
+        setReceiver(isLeader);
     }
 
     public void sendToLeader(AbstractTransaction transaction) throws Exception {
-        setReceiver();
-        this.serverGroup.sendTransactionToLeader(leaderNodeAddress, transaction);
+        setReceiver(false);
+        this.serverGroup.sendTransactionToLeader(leaderAddress, transaction);
     }
 
     public void distributeBlock(Block block) throws Exception {
-        setReceiver();
+        setReceiver(true);
         this.serverGroup.publishBlockToGroup(block);
     }
 
     public boolean isLeader() {
-        return nodeAddress.equals(leaderNodeAddress);
+        return nodeAddress.equals(leaderAddress);
     }
 
     public void leaveGroup() {

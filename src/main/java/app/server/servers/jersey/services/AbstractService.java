@@ -6,6 +6,7 @@ import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.AbstractTransaction;
 import com.google.gson.Gson;
+import org.jgroups.Address;
 import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 
@@ -39,8 +40,19 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
          * If a leader process receives a message from itself, then it ignores it.
          */
         @Override
+        @SuppressWarnings("unchecked")
         public void receive(Message msg) {
-            if (msg.getSrc().equals(service.server.getNodeAddress())) {
+            if (msg.getObject().toString().startsWith("L")) {
+                Address leaderAddress = new Gson().fromJson(msg.getObject().toString().substring(1), service.server.getAddress().getClass());
+                try {
+                    service.server.updateLeaderAddress(leaderAddress);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            if (msg.getSrc().equals(msg.getDest())) {
                 // Ignore
             } else {
                 // Receiving from another process
@@ -87,6 +99,15 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
          */
         @Override
         public void receive(Message msg) {
+            if (msg.getObject().toString().startsWith("L")) {
+                Address leaderAddress = new Gson().fromJson(msg.getObject().toString().substring(1), service.server.getAddress().getClass());
+                try {
+                    service.server.updateLeaderAddress(leaderAddress);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
             // 1. Assert that truly the leader sent the message. For testing...
             assert msg.getSrc().equals(service.server.getLeaderNodeAddress());
 
@@ -97,7 +118,6 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
             service.blockChain.addBlock(block);
         }
     }
-
 
 
     protected BlockChain blockChain;

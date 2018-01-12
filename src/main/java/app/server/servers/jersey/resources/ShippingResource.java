@@ -49,6 +49,8 @@ public class ShippingResource extends AbstractResource<ShippingService> {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println("Ship " + shippingModel.getShipID() + " left the port " + shippingModel.getPortID());
         return Response.ok().build();
     }
 
@@ -62,6 +64,8 @@ public class ShippingResource extends AbstractResource<ShippingService> {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println("Ship " + shippingModel.getShipID() + " arrived to port " + shippingModel.getPortID());
         return Response.ok().build();
     }
 
