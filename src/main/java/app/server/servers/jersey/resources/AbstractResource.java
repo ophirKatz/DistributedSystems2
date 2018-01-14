@@ -12,6 +12,7 @@ public class AbstractResource<ServiceType extends AbstractService> {
     protected ServiceType service;
 
     protected void setReceiversByService() {
+        System.out.println("Setting receivers by service!");
         service.setReceiversForServerProcess();
     }
 }

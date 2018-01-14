@@ -4,6 +4,7 @@ import app.server.blockchain.Block;
 import app.server.blockchain.BlockChain;
 import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
+import app.server.servers.communication.MessageWithId;
 import app.server.servers.jersey.model.AbstractTransaction;
 import com.google.gson.Gson;
 import org.jgroups.Address;
@@ -19,8 +20,30 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractService<ModelType extends AbstractTransaction> {
 
-    private static final int cacheThreshold = 5;
     private static int currentBlockId = 0;
+
+    private void blockchainActionsAsLeader(ModelType model) {
+        // 2. Add transaction to cache.
+        transactionCache.addTransaction(model);
+
+        // 3. If the cache is full, create a block and empty the cache.
+        if (transactionCache.isFull()) {
+            // Then cache is full - empty it and create block.);
+            Block block = new Block(transactionCache.cacheOut(), String.valueOf(currentBlockId++));
+
+            // 4. Insert block to blockchain
+            System.out.println("Leader : service.blockChain.addBlock(block)");
+            blockChain.addBlock(block);
+
+            // 5. Broadcast the block to other server processes.
+            try {
+                System.out.println("Leader : service.server.distributeBlock(block)");
+                server.distributeBlock(block);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static class LeaderReceiver extends ReceiverAdapter {
 
@@ -42,9 +65,18 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
         @Override
         @SuppressWarnings("unchecked")
         public void receive(Message msg) {
+            MessageWithId messageWithId = (MessageWithId) msg;
+            if (messageWithId.srcIsDest()) {
+                // Ignore self messages
+                return;
+            }
+            System.out.println("Leader : Received Message : [" + msg.getSrc() + "] -> [" + msg.getDest() + "] : [" + msg.getObject() + "]");
             if (msg.getObject().toString().startsWith("L")) {
                 Address leaderAddress = new Gson().fromJson(msg.getObject().toString().substring(1), service.server.getAddress().getClass());
+                System.out.println("Received leader address : " + leaderAddress.toString());
+                System.out.println("JSON rep : " + msg.getObject().toString().substring(1));
                 try {
+                    System.out.println("Leader : updateLeaderAddress(leaderAddress)");
                     service.server.updateLeaderAddress(leaderAddress);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -52,35 +84,13 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
                 return;
             }
 
-            if (msg.getSrc().equals(msg.getDest())) {
-                // Ignore
-            } else {
-                // Receiving from another process
-                // 1. Parse the transaction
-                // todo
-                Gson gson = new Gson();
-                AbstractTransaction transaction = (AbstractTransaction) gson.fromJson(msg.getObject().toString(), service.modelType);
+            // Receiving from another process
+            // 1. Parse the transaction
+            // todo
+            Gson gson = new Gson();
+            AbstractTransaction transaction = (AbstractTransaction) gson.fromJson(msg.getObject().toString(), service.modelType);
 
-                // 2. Add transaction to cache.
-                service.transactionCache.addTransaction(transaction);
-
-                // 3. If the cache is full, create a block and empty the cache.
-                if (service.transactionCache.isFull()) {
-                    // Then cache is full - empty it and create block.
-                    Block block = new Block(service.transactionCache.cacheOut(), String.valueOf(currentBlockId++));
-
-                    // 4. Insert block to blockchain
-                    service.blockChain.addBlock(block);
-
-                    // 5. Broadcast the block to other server processes.
-                    try {
-                        service.server.distributeBlock(block);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
+            service.blockchainActionsAsLeader(transaction);
         }
     }
 
@@ -99,29 +109,36 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
          */
         @Override
         public void receive(Message msg) {
+            System.out.println("NonLeader : Received Message : [" + msg.getSrc() + "] -> [" + msg.getDest() + "] : [" + msg.getObject() + "]");
             if (msg.getObject().toString().startsWith("L")) {
                 Address leaderAddress = new Gson().fromJson(msg.getObject().toString().substring(1), service.server.getAddress().getClass());
+                System.out.println("Received leader address : " + leaderAddress.toString());
+                System.out.println("JSON rep : " + msg.getObject().toString().substring(1));
+
                 try {
-                    service.server.updateLeaderAddress(leaderAddress);
+                    if (!leaderAddress.equals(service.server.getAddress())) {
+                        // Only if I am not the leader
+                        System.out.println("NonLeader : updateLeaderAddress(leaderAddress)");
+                        service.server.updateLeaderAddress(leaderAddress);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return;
             }
-            // 1. Assert that truly the leader sent the message. For testing...
-            assert msg.getSrc().equals(service.server.getLeaderNodeAddress());
 
             // 2. Parse the block from the message.
+            System.out.println("NonLeader : parsing block");
             Block block = Block.parseString(msg.getObject().toString());
 
             // 3. Insert block to blockchain
+            System.out.println("NonLeader : service.blockChain.addBlock(block)");
             service.blockChain.addBlock(block);
         }
     }
 
 
     protected BlockChain blockChain;
-    //protected List<AbstractTransaction> transactionCache;
     protected TransactionCache transactionCache;
     protected ServerProcess server;
     private Class<? extends AbstractTransaction> modelType;
@@ -141,8 +158,17 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
         ServerProcess.nonLeaderReceiver = new NonLeaderReceiver(this);
     }
 
+    public void setReceiverForServer() {
+        server.setReceiver();
+    }
+
     public void attemptToExpandBlockChain(ModelType model) throws Exception {
-        this.server.sendToLeader(model);
+        if (server.isLeader()) {
+            // If I am the leader, no need to send to leader
+            blockchainActionsAsLeader(model);
+        } else {
+            this.server.sendToLeader(model);
+        }
     }
 
     protected List<AbstractTransaction> getAllTransactionsInBlockChainByModelClass(Class<? extends AbstractTransaction> c) {

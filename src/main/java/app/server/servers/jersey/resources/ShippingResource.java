@@ -1,8 +1,5 @@
 package app.server.servers.jersey.resources;
 
-import app.server.blockchain.BlockChain;
-import app.server.blockchain.TransactionCache;
-import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.ShippingModel;
 import app.server.servers.jersey.services.ShippingService;
 
@@ -26,8 +23,8 @@ public class ShippingResource extends AbstractResource<ShippingService> {
     public static final String pid = "portId";
 
     @Inject
-    public ShippingResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
-        this.service = new ShippingService(blockChain, cache, server);
+    public ShippingResource(ShippingService service) {
+        this.service = service;
         this.setReceiversByService();
     }
 

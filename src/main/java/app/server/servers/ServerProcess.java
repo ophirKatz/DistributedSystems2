@@ -1,7 +1,7 @@
 package app.server.servers;
 
+import app.server.ServerMain;
 import app.server.blockchain.Block;
-import app.server.servers.communication.NodeAddress;
 import app.server.servers.communication.ServerGroup;
 import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.services.AbstractService;
@@ -13,52 +13,52 @@ import org.jgroups.Address;
 public class ServerProcess {
 
     private ServerGroup serverGroup;    // Each server belongs to the server group
-    private NodeAddress nodeAddress;
-
-    private NodeAddress leaderNodeAddress;
     private Address leaderAddress;
 
     public Address getAddress() {
         return serverGroup.getAddress();
     }
 
-    /*public static class NodeAddressGenerator implements AddressGenerator {
-
-        private NodeAddress processNodeAddress;
-
-        public NodeAddressGenerator(String processNodePath) {
-            this.processNodeAddress = new NodeAddress(processNodePath);
-        }
-
-        @Override
-        public Address generateAddress() {
-            return processNodeAddress;
-        }
-    }*/
-
-    //public static NodeAddressGenerator nodeAddressGenerator;
-
     public static AbstractService.LeaderReceiver leaderReceiver;
     public static AbstractService.NonLeaderReceiver nonLeaderReceiver;
 
     private void setReceiver(boolean isLeader) {
+        this.isLeader = isLeader;
         if (isLeader) {
             this.serverGroup.setReceiverAdapter(leaderReceiver);
+            if (leaderReceiver == null) {
+                this.serverGroup.setReceiverAdapter(new AbstractService.LeaderReceiver(ServerMain.getService()));
+            }
+            System.out.println("Setting receiver as LeaderReceiver : " + this.serverGroup.getReceiverAdapter());
         } else {
             this.serverGroup.setReceiverAdapter(nonLeaderReceiver);
+            if (nonLeaderReceiver == null) {
+                this.serverGroup.setReceiverAdapter(new AbstractService.NonLeaderReceiver(ServerMain.getService()));
+            }
+            System.out.println("Setting receiver as NonLeaderReceiver : " + this.serverGroup.getReceiverAdapter());
         }
     }
 
-    /*public void updateLeader(String leaderNodePath) {
-        this.leaderNodeAddress = new NodeAddress(leaderNodePath);
+    public void setReceiver() {
         setReceiver(isLeader);
-    }*/
+    }
+
+    private boolean isLeader;
+
+    public void isLeader(boolean isLeader) {
+        this.isLeader = isLeader;
+    }
+
+    public boolean isLeader() {
+        return isLeader;
+    }
 
     /**
      * Called by the leader itself
      */
     public void updateLeaderAddress() throws Exception {
         this.leaderAddress = serverGroup.getAddress();
+        System.out.println("in updateLeaderAddress() - setting as leader");
         setReceiver(true);
         // TODO : Send to others
         this.serverGroup.publishLeaderAddressToGroup(leaderAddress);
@@ -69,39 +69,27 @@ public class ServerProcess {
      */
     public void updateLeaderAddress(Address leaderAddress) throws Exception {
         this.leaderAddress = leaderAddress;
+        System.out.println("in updateLeaderAddress(Address leaderAddress) - setting as non-leader");
         setReceiver(false);
     }
 
-    public NodeAddress getLeaderNodeAddress() {
-        return leaderNodeAddress;
-    }
-
-    public NodeAddress getNodeAddress() {
-        return nodeAddress;
-    }
-
-    public ServerProcess(boolean isLeader) throws Exception {
-        // ServerProcess.nodeAddressGenerator = new NodeAddressGenerator(nodePath);
-        this.serverGroup = new ServerGroup();
-        // this.nodeAddress = new NodeAddress(nodePath);
-        // this.leaderNodeAddress = new NodeAddress(leaderNodePath);
+    public ServerProcess(boolean isLeader, String nodePath) throws Exception {
+        this.serverGroup = new ServerGroup(nodePath);
         this.serverGroup.connectToGroup();
 
-        setReceiver(isLeader);
+        // Here receivers are null since there are no services yet.
+        // setReceiver(isLeader);
+        this.isLeader = isLeader;
     }
 
     public void sendToLeader(AbstractTransaction transaction) throws Exception {
-        setReceiver(false);
+        // setReceiver(false); // todo : this may or may not be the leader
         this.serverGroup.sendTransactionToLeader(leaderAddress, transaction);
     }
 
     public void distributeBlock(Block block) throws Exception {
-        setReceiver(true);
+        // setReceiver(true);
         this.serverGroup.publishBlockToGroup(block);
-    }
-
-    public boolean isLeader() {
-        return nodeAddress.equals(leaderAddress);
     }
 
     public void leaveGroup() {

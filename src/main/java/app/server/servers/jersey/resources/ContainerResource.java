@@ -1,8 +1,5 @@
 package app.server.servers.jersey.resources;
 
-import app.server.blockchain.BlockChain;
-import app.server.blockchain.TransactionCache;
-import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.ContainerModel;
 import app.server.servers.jersey.services.ContainerService;
 
@@ -27,9 +24,10 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     private static final String sid = "shipId";
 
     @Inject
-    public ContainerResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
-        this.service = new ContainerService(blockChain, cache, server);
+    public ContainerResource(ContainerService service) {
+        this.service = service;
         this.setReceiversByService();
+        this.service.setReceiverForServer();
     }
 
     private static ContainerModel createModel(String containerId, String shipId, ContainerModel.ContainmentType type) {
@@ -81,7 +79,8 @@ public class ContainerResource extends AbstractResource<ContainerService> {
     @GET
     @Path("/getNumberOfTransfers")
     public String getNumberOfTransfers(@QueryParam(cid) String containerId) {
-        return "Number of transfer of the container with id = " + containerId + " is : " + String.valueOf(service.getNumberOfTransfersForContainer(containerId));
+        return "Number of transfer of the container with id = " + containerId + " is : " +
+                String.valueOf(service.getNumberOfTransfersForContainer(containerId));
     }
 }
 

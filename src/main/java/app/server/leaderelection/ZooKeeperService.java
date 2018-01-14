@@ -16,9 +16,11 @@ import java.util.List;
 public class ZooKeeperService {
 
     private ZooKeeper zooKeeper;
+    private ProcessNode.ProcessNodeWatcher processNodeWatcher;
 
     public ZooKeeperService(final String url, final ProcessNode.ProcessNodeWatcher processNodeWatcher) throws IOException {
-        zooKeeper = new ZooKeeper(url, 3000, processNodeWatcher);
+        this.zooKeeper = new ZooKeeper(url, 3000, processNodeWatcher);
+        this.processNodeWatcher = processNodeWatcher;
     }
 
     public String createNode(final String node, final boolean watch, final boolean ephimeral) {
@@ -26,8 +28,12 @@ public class ZooKeeperService {
         try {
             final Stat nodeStat = zooKeeper.exists(node, watch);
             if (nodeStat == null) {
+                System.out.println("[ZooKeeperService.createNode] Node doesn't exist");
+                // createdNodePath = zooKeeper.create(node, new byte[0], Ids.OPEN_ACL_UNSAFE, (ephimeral ? CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
                 createdNodePath = zooKeeper.create(node, new byte[0], Ids.OPEN_ACL_UNSAFE, (ephimeral ? CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
+                zooKeeper.exists(createdNodePath, watch);
             } else {
+                System.out.println("[ZooKeeperService.createNode] Node exists");
                 createdNodePath = node;
             }
         } catch (KeeperException | InterruptedException e) {
@@ -41,7 +47,6 @@ public class ZooKeeperService {
         boolean watched = false;
         try {
             final Stat nodeStat = zooKeeper.exists(node, watch);
-
             if (nodeStat != null) {
                 watched = true;
             }
@@ -62,6 +67,5 @@ public class ZooKeeperService {
 
         return childNodes;
     }
-
 }
 

@@ -1,11 +1,11 @@
 package app.server.servers.communication;
 
+import app.server.ServerMain;
 import app.server.blockchain.Block;
 import app.server.servers.jersey.model.AbstractTransaction;
 import com.google.gson.Gson;
 import org.jgroups.Address;
 import org.jgroups.JChannel;
-import org.jgroups.Message;
 import org.jgroups.ReceiverAdapter;
 
 /**
@@ -20,20 +20,27 @@ public class ServerGroup {
     private JChannel channel;
     private ReceiverAdapter receiverAdapter;
 
-    public ServerGroup() throws Exception {
+    public ServerGroup(String nodePath) throws Exception {
         channel = new JChannel(prop);
-        channel.setName(clusterName);
-        // channel.addAddressGenerator(ServerProcess.nodeAddressGenerator);
+        channel.setName(nodePath);
+        /*channel.addChannelListener(new ChannelListener() {
+            @Override
+            public void channelConnected(JChannel jChannel) {
+
+            }
+
+            @Override
+            public void channelDisconnected(JChannel jChannel) {
+
+            }
+
+            @Override
+            public void channelClosed(JChannel jChannel) {
+
+            }
+        });*/
     }
 
-    /*
-        public ServerGroup(ReceiverAdapter adapter) throws Exception {
-            channel = new JChannel();
-            channel.setName(clusterName);
-            channel.addAddressGenerator(ServerProcess.nodeAddressGenerator);
-            setReceiverAdapter(adapter);
-        }
-    */
     public void setReceiverAdapter(ReceiverAdapter receiverAdapter) {
         this.receiverAdapter = receiverAdapter;
         this.channel.setReceiver(receiverAdapter);
@@ -50,17 +57,22 @@ public class ServerGroup {
     }
 
     public void publishBlockToGroup(Block block) throws Exception {
-        channel.send(new Message(null, block.toString()));
+        System.out.println("Sending block content to group : " + block.toString());
+        channel.send(new MessageWithId(null, block.toString(), ServerMain.getServerId()));
     }
 
     public void publishLeaderAddressToGroup(Address leaderAddress) throws Exception {
         String jsonAddress = "L" + new Gson().toJson(leaderAddress);
-        channel.send(new Message(null, jsonAddress));
+        System.out.println(jsonAddress);
+        System.out.println("Publishing leader address to group : " + jsonAddress);
+        channel.send(new MessageWithId(null, jsonAddress, ServerMain.getServerId()));
     }
 
     public void sendTransactionToLeader(Address leaderAddress, AbstractTransaction transaction) throws Exception {
         String jsonTransaction = transaction.toString();
-        channel.send(new Message(leaderAddress, jsonTransaction));
+        System.out.println("Sending transaction to leader at [" + leaderAddress + "] : " + jsonTransaction);
+        System.out.println("Receiver is : " + receiverAdapter.getClass().getSimpleName());
+        channel.send(new MessageWithId(leaderAddress, jsonTransaction, ServerMain.getServerId()));
     }
 
     public void closeGroup() {

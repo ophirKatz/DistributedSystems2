@@ -1,13 +1,16 @@
 package app.client;
 
 import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Created by ophir on 11/01/18.
  */
+@Ignore
 public class StorageResourceTest extends AbstractResourceTest {
 
-    //@Test
+    @Test
     public void testStorageGetContainerIdNotFound() {
         String target = baseUri + "/storage/getContainerId?itemId=12345";
         String stringResponse = client.target(target)
@@ -16,7 +19,7 @@ public class StorageResourceTest extends AbstractResourceTest {
         Assert.assertEquals("No item with id = 12345 was found", stringResponse);
     }
 
-    //@Test
+    @Test
     public void testStorageGetNumberOfItemsNotFound() {
         String target = baseUri + "/storage/numberOfItems?containerId=12345";
         String stringResponse = client.target(target)

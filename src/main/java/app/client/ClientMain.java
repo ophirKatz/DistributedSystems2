@@ -1,9 +1,11 @@
 package app.client;
 
+import app.Utils;
 import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.ContainerModel;
 import app.server.servers.jersey.model.ShippingModel;
 import app.server.servers.jersey.model.StorageModel;
+import org.apache.commons.cli.CommandLine;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -13,6 +15,7 @@ import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 
 /**
@@ -31,15 +34,8 @@ public class ClientMain {
 
     public static String port = "8282";
 
-    static {
-        // 5 tries to find a server to connect to.
-        /*for (int i = 0; i < 5 && port == null; i++) {
-            try {
-                port = findRandomServerPortToConnectTo();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
+    private static void chooseServer() {
+        port = Utils.serverPorts.get(new Random().nextInt(Utils.serverPorts.size()));
     }
 
     private static <TransactionType extends AbstractTransaction> void handlePOST(Client client, String path, TransactionType transaction) {
@@ -172,7 +168,13 @@ public class ClientMain {
         return true;
     }
 
-    public static void main(String[] args) {
+    public static void main(CommandLine cmd) {
+        System.out.println("Starting Client...");
+        ClientMain.chooseServer();
+        if (cmd.hasOption("port")) {
+            port = cmd.getOptionValue("port");
+        }
+        System.out.println("Session opened with server on port " + port);
         while (true) {
             try {
                 if (!getUserInputAndPerformAction()) {

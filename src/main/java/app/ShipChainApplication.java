@@ -4,6 +4,8 @@ import app.client.ClientMain;
 import app.server.ServerMain;
 import org.apache.commons.cli.*;
 
+import java.io.IOException;
+
 /**
  * Created by ophir on 10/01/18.
  */
@@ -25,8 +27,11 @@ public class ShipChainApplication {
 
     public static void main(String[] args) {
         // new JHades().overlappingJarsReport();
+        System.out.println("Starting ShipChain Application...");
         CommandLineParser parser = new DefaultParser();
         try {
+            Utils.readApplicationConfiguration();
+            System.out.println("Parsing Arguments...");
             CommandLine cmd = parser.parse(setupCliOptions(), args);
             if (!cmd.hasOption("start")) {
                 usage();
@@ -37,14 +42,14 @@ public class ShipChainApplication {
                     ServerMain.main(cmd);
                     break;
                 case "client":
-                    ClientMain.main(args);
+                    ClientMain.main(cmd);
                     break;
                 default:
                     usage();
             }
-        } catch (ParseException e) {
-            System.exit(1);
+        } catch (ParseException | org.json.simple.parser.ParseException | IOException e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 }

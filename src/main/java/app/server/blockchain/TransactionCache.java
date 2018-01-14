@@ -1,5 +1,6 @@
 package app.server.blockchain;
 
+import app.Utils;
 import app.server.servers.jersey.model.AbstractTransaction;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public class TransactionCache {
 
-    private static final int threshold = 5;
+    private static final int threshold = (int) Utils.blockSizeThreshold;
 
     private List<AbstractTransaction> cache;
 

@@ -29,6 +29,7 @@ public class BlockChain {
     }
 
     public void addBlock(Block block) {
+        System.out.println("Adding block to blockchain");
         blocks.add(block);
     }
 

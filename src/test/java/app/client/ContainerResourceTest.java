@@ -2,6 +2,8 @@ package app.client;
 
 import app.server.servers.jersey.model.ContainerModel;
 import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -12,11 +14,12 @@ import static app.Utils.serverPort;
 /**
  * Created by ophir on 11/01/18.
  */
+@Ignore
 public class ContainerResourceTest extends AbstractResourceTest {
 
     private static final String port = serverPort;
 
-    //@Test
+    @Test
     public void testLoadContainer() {
         ContainerModel newContainer = new ContainerModel("12345", "1234");
         String target = baseUri + "/containers/load";
@@ -27,7 +30,7 @@ public class ContainerResourceTest extends AbstractResourceTest {
         Assert.assertEquals(HTTP_CREATE, response.getStatus());
     }
 
-    //@Test
+    @Test
     public void testContainerGetShipIdNotFound() {
         String target = baseUri + "/containers/getShipId?containerId=12345";
         String stringResponse = client.target(target)
@@ -36,7 +39,7 @@ public class ContainerResourceTest extends AbstractResourceTest {
         Assert.assertEquals("No container with id = 12345 was found", stringResponse);
     }
 
-    //@Test
+    @Test
     public void testContainerGetNumberOfTransfersNotFound() {
         String target = baseUri + "/containers/getNumberOfTransfers?containerId=12345";
         String stringResponse = client.target(target)

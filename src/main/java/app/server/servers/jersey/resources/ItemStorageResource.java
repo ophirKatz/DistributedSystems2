@@ -1,8 +1,5 @@
 package app.server.servers.jersey.resources;
 
-import app.server.blockchain.BlockChain;
-import app.server.blockchain.TransactionCache;
-import app.server.servers.ServerProcess;
 import app.server.servers.jersey.model.StorageModel;
 import app.server.servers.jersey.services.StorageService;
 
@@ -25,9 +22,10 @@ public class ItemStorageResource extends AbstractResource<StorageService> {
     public static final String cid = "containerId";
     public static final String iid = "itemId";
 
+
     @Inject
-    public ItemStorageResource(BlockChain blockChain, TransactionCache cache, ServerProcess server) {
-        this.service = new StorageService(blockChain, cache, server);
+    public ItemStorageResource(StorageService service) {
+        this.service = service;
         this.setReceiversByService();
     }
 

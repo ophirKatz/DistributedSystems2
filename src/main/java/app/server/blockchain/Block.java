@@ -2,6 +2,7 @@ package app.server.blockchain;
 
 import app.server.servers.jersey.model.AbstractTransaction;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,15 @@ public class Block {
 
     public static Block parseString(String s) {
         Gson gson = new Gson();
-        return gson.fromJson(s, Block.class);
+        Block resp = null;
+        try {
+            resp = gson.fromJson(s, Block.class);
+            System.out.println("Parsed block = " + resp.toString());
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return resp;
     }
 
     @Override

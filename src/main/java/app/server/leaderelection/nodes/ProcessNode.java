@@ -28,7 +28,6 @@ public class ProcessNode implements Runnable {
 
     private String processNodePath;
     private String watchedNodePath;
-    private String leaderNodePath;
 
     private ServerProcess server;
 
@@ -44,28 +43,33 @@ public class ProcessNode implements Runnable {
         return processNodePath;
     }
 
-    public String getLeaderNodePath() {
-        return leaderNodePath;
-    }
-
 
     public ProcessNode(final int id, final String zkURL) throws IOException {
         this.id = id;
         zooKeeperService = new ZooKeeperService(zkURL, new ProcessNodeWatcher());
     }
 
+    private boolean isLeader = false;
+
     private void attemptForLeaderPosition(boolean updateLeader) throws Exception {
+        System.out.println("Running attemptForLeaderPosition... server = " + server);
         final List<String> childNodePaths = zooKeeperService.getChildren(LEADER_ELECTION_ROOT_NODE, false);
         Collections.sort(childNodePaths);
+        for (String childNode : childNodePaths) {
+            System.out.println("Child : " + childNode);
+        }
 
         int index = childNodePaths.indexOf(processNodePath.substring(processNodePath.lastIndexOf('/') + 1));
         if (index == 0) {
             // I am the leader - update in ServerProcess.class
             System.out.println("[Process: " + id + "] I am the new leader!");
 
-            leaderNodePath = processNodePath;
+            isLeader = true;
             if (updateLeader && server != null) {
+                // Send the leader address to all
+                System.out.println("Attempting to update leader address");
                 server.updateLeaderAddress();
+                server.isLeader(true);
             } // else - server not initialized
         } else {
             // I am not the leader - update in ServerProcess.class
@@ -74,19 +78,22 @@ public class ProcessNode implements Runnable {
             System.out.println("[Process: " + id + "] - Setting watch on node with path: " + watchedNodePath);
             zooKeeperService.watchNode(watchedNodePath, true);
 
-            leaderNodePath = childNodePaths.get(0);
+            if (server != null) {
+                server.isLeader(false);
+            }
         }
     }
 
     public void run() {
         System.out.println("Process with id: " + id + " has started!");
 
+        // final String rootNodePath = zooKeeperService.createNode(LEADER_ELECTION_ROOT_NODE, false, false);
         final String rootNodePath = zooKeeperService.createNode(LEADER_ELECTION_ROOT_NODE, false, false);
         if (rootNodePath == null) {
             throw new IllegalStateException("Unable to create/access leader election root node with path: " + LEADER_ELECTION_ROOT_NODE);
         }
 
-        processNodePath = zooKeeperService.createNode(rootNodePath + PROCESS_NODE_PREFIX, false, true);
+        processNodePath = zooKeeperService.createNode(rootNodePath + PROCESS_NODE_PREFIX, true, true);
         if (processNodePath == null) {
             throw new IllegalStateException("Unable to create/access process node with path: " + LEADER_ELECTION_ROOT_NODE);
         }
@@ -103,15 +110,12 @@ public class ProcessNode implements Runnable {
     }
 
     public boolean isLeader() {
-        return processNodePath.equals(leaderNodePath);
+        return isLeader;
     }
 
     public class ProcessNodeWatcher implements Watcher {
-        /**
-         * TODO : When we are updating the leader, it must be updated in the ServerProcess's class.
-         */
 
-
+        @Override
         public void process(WatchedEvent event) {
             System.out.println("[Process: " + id + "] Event received: " + event);
 
@@ -127,7 +131,20 @@ public class ProcessNode implements Runnable {
                     }
                 }
             }
+            if (EventType.NodeCreated.equals(eventType)) {
+                System.out.println("Node created...");
+                isLeader = true;
+                if (server != null) {
+                    server.isLeader(true);
+                    // Send the leader address to all
+                    System.out.println("Attempting to update leader address");
+                    try {
+                        server.updateLeaderAddress();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } // else - server not initialized
+            }
         }
     }
-
 }
