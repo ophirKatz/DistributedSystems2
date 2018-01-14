@@ -73,6 +73,13 @@ public class ContainerModel extends AbstractTransaction {
 
     public static ContainerModel parseString(String s) {
         Gson gson = new Gson();
-        return gson.fromJson(s, ContainerModel.class);
+        ContainerModel containerModelJson = gson.fromJson(s, ContainerModel.class);
+        System.out.println(containerModelJson);
+        return containerModelJson;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

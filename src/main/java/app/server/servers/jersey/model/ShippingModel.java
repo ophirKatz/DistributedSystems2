@@ -78,4 +78,9 @@ public class ShippingModel extends AbstractTransaction {
         Gson gson = new Gson();
         return gson.fromJson(s, ShippingModel.class);
     }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

@@ -25,7 +25,6 @@ public class TransactionCache {
     }
 
     public List<AbstractTransaction> getCache() {
-
         return cache;
     }
 
@@ -38,7 +37,7 @@ public class TransactionCache {
     }
 
     public List<AbstractTransaction> cacheOut() {
-        ArrayList<AbstractTransaction> copy = new ArrayList<>(cache);
+        List<AbstractTransaction> copy = new ArrayList<>(cache);
         cache.clear();
         return copy;
     }

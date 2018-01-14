@@ -1,6 +1,10 @@
 package app;
 
 import app.server.servers.communication.NodeAddress;
+import app.server.servers.jersey.model.AbstractTransaction;
+import app.server.servers.jersey.model.ContainerModel;
+import app.server.servers.jersey.model.ShippingModel;
+import app.server.servers.jersey.model.StorageModel;
 import org.jgroups.JChannel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -58,5 +62,15 @@ public class Utils {
         for (Object port : ports) {
             serverPorts.add(port.toString());
         }
+    }
+
+    public static Class<? extends AbstractTransaction> getTransactionClassObjectFromString(String s) {
+        if (s.toLowerCase().contains("containerid") && s.toLowerCase().contains("shipid")) {
+            return ContainerModel.class;
+        } else if (s.toLowerCase().contains("containerid") && s.toLowerCase().contains("itemid")) {
+            return StorageModel.class;
+        }// else if (s.toLowerCase().contains("portid") && s.toLowerCase().contains("shipid")) {
+        return ShippingModel.class;
+        //}
     }
 }

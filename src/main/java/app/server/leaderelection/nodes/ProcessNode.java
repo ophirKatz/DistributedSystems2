@@ -3,9 +3,11 @@ package app.server.leaderelection.nodes;
 import app.server.leaderelection.ZooKeeperService;
 import app.server.servers.ServerProcess;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.jgroups.Address;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -20,7 +22,7 @@ public class ProcessNode implements Runnable {
 
     private static final Logger LOG = Logger.getLogger(ProcessNode.class);
 
-    private static final String LEADER_ELECTION_ROOT_NODE = "/election";
+    public static final String LEADER_ELECTION_ROOT_NODE = "/election";
     private static final String PROCESS_NODE_PREFIX = "/p_";
 
     private final int id;
@@ -68,7 +70,7 @@ public class ProcessNode implements Runnable {
             if (updateLeader && server != null) {
                 // Send the leader address to all
                 System.out.println("Attempting to update leader address");
-                server.updateLeaderAddress();
+                // server.updateLeaderAddress();
                 server.isLeader(true);
             } // else - server not initialized
         } else {
@@ -94,6 +96,7 @@ public class ProcessNode implements Runnable {
         }
 
         processNodePath = zooKeeperService.createNode(rootNodePath + PROCESS_NODE_PREFIX, true, true);
+        zooKeeperService.watchNodes();
         if (processNodePath == null) {
             throw new IllegalStateException("Unable to create/access process node with path: " + LEADER_ELECTION_ROOT_NODE);
         }
@@ -109,8 +112,16 @@ public class ProcessNode implements Runnable {
         }
     }
 
+    public void setNodeData(byte[] data) throws KeeperException, InterruptedException {
+        this.zooKeeperService.setNodeData(processNodePath, data);
+    }
+
     public boolean isLeader() {
         return isLeader;
+    }
+
+    public Address findLeaderAddressInZookeeper() throws KeeperException, InterruptedException {
+        return this.zooKeeperService.findLeaderAddressInZookeeper(server.getAddress().getClass());
     }
 
     public class ProcessNodeWatcher implements Watcher {
@@ -139,7 +150,7 @@ public class ProcessNode implements Runnable {
                     // Send the leader address to all
                     System.out.println("Attempting to update leader address");
                     try {
-                        server.updateLeaderAddress();
+                        // server.updateLeaderAddress();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

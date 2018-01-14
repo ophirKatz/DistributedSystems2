@@ -77,4 +77,8 @@ public class StorageModel extends AbstractTransaction {
         return gson.fromJson(s, StorageModel.class);
     }
 
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
 }

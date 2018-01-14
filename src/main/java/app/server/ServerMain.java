@@ -11,9 +11,6 @@ import app.server.servers.jersey.resources.ContainerResource;
 import app.server.servers.jersey.resources.ItemStorageResource;
 import app.server.servers.jersey.resources.ShippingResource;
 import app.server.servers.jersey.services.AbstractService;
-import app.server.servers.jersey.services.ContainerService;
-import app.server.servers.jersey.services.ShippingService;
-import app.server.servers.jersey.services.StorageService;
 import com.google.gson.Gson;
 import org.apache.commons.cli.CommandLine;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -29,18 +26,6 @@ public class ServerMain {
     private static String BASE_URI = "http://localhost:<port>/shipchain/";
 
     private static JerseyContextServiceBinder serviceBinder;
-
-    public static ContainerService getContainerService() {
-        return serviceBinder.getContainerService();
-    }
-
-    public static ShippingService getShippingService() {
-        return serviceBinder.getShippingService();
-    }
-
-    public static StorageService getStorageService() {
-        return serviceBinder.getStorageService();
-    }
 
     public static AbstractService<? extends AbstractTransaction> getService() {
         return serviceBinder.getContainerService();
@@ -100,7 +85,8 @@ public class ServerMain {
 
             // 2. Open the server, connect to ServerGroup.
             System.out.println("Starting server as " + (processNode.isLeader() ? "leader" : "non-leader"));
-            ServerMain.server = new ServerProcess(processNode.isLeader(), processNode.getNodePath());
+            ServerMain.server = new ServerProcess(processNode);
+            processNode.setNodeData(ServerMain.server.getAddressAsJson().getBytes());
 
             // 3. Connect [inject] the server to ProcessNode.
             processNode.setServer(ServerMain.server);
