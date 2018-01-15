@@ -54,12 +54,8 @@ public class ProcessNode implements Runnable {
     private boolean isLeader = false;
 
     private void attemptForLeaderPosition(boolean updateLeader) throws Exception {
-        System.out.println("Running attemptForLeaderPosition... server = " + server);
         final List<String> childNodePaths = zooKeeperService.getChildren(LEADER_ELECTION_ROOT_NODE, false);
         Collections.sort(childNodePaths);
-        for (String childNode : childNodePaths) {
-            System.out.println("Child : " + childNode);
-        }
 
         int index = childNodePaths.indexOf(processNodePath.substring(processNodePath.lastIndexOf('/') + 1));
         if (index == 0) {
@@ -69,8 +65,6 @@ public class ProcessNode implements Runnable {
             isLeader = true;
             if (updateLeader && server != null) {
                 // Send the leader address to all
-                System.out.println("Attempting to update leader address");
-                // server.updateLeaderAddress();
                 server.isLeader(true);
             } // else - server not initialized
         } else {
@@ -89,7 +83,6 @@ public class ProcessNode implements Runnable {
     public void run() {
         System.out.println("Process with id: " + id + " has started!");
 
-        // final String rootNodePath = zooKeeperService.createNode(LEADER_ELECTION_ROOT_NODE, false, false);
         final String rootNodePath = zooKeeperService.createNode(LEADER_ELECTION_ROOT_NODE, false, false);
         if (rootNodePath == null) {
             throw new IllegalStateException("Unable to create/access leader election root node with path: " + LEADER_ELECTION_ROOT_NODE);

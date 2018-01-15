@@ -32,7 +32,6 @@ public class JerseyContextServiceBinder extends AbstractBinder {
 
     @Override
     protected void configure() {
-        System.out.println("----    Injecting Dependencies To Servers    ----");
         // So that all services will have the same app.server.blockchain
         BlockChain blockchain = new BlockChain();
         bind(blockchain).to(BlockChain.class);

@@ -121,16 +121,26 @@ public class ClientMain {
 
     private static void performGETAction(Client client, BufferedReader br) throws IOException {
         // Type of resource
-        System.out.println("Choose type of resource :\n\t[1] for shipping.\n\t[2] for containers.\n\t[3] for storage.");
-        String type = br.readLine();
-        int typeIndex = Integer.parseInt(type) - 1;
-        String baseMapping = "/" + new String[]{"shipping", "containers", "storage"}[typeIndex];
-
-        // Input query
         while (true) {
-            System.out.println("Input query on the resource :");
-            String resourceQuery = br.readLine();
+            System.out.println("Choose type of resource :\n\t[1] for shipping.\n\t[2] for containers.\n\t[3] for storage.");
+            String type = br.readLine();
+            String resourceQuery = null;
+            switch (type) {
+                case "1":
+                    resourceQuery = performGETActionShipping(br);
+                    break;
+                case "2":
+                    resourceQuery = performGETActionContainers(br);
+                    break;
+                case "3":
+                    resourceQuery = performGETActionStorage(br);
+                    break;
+            }
+            int typeIndex = Integer.parseInt(type) - 1;
+            String baseMapping = "/" + new String[]{"shipping", "containers", "storage"}[typeIndex];
             String query = baseMapping + "/" + resourceQuery;
+            // Input query
+
 
             String request = "http://localhost:" + port + applicationPath + query;
             System.out.println("Run request <" + request + "> on the server? [y/n]");
@@ -144,6 +154,63 @@ public class ClientMain {
                 break;
             }
         }
+    }
+
+    private static String performGETActionContainers(BufferedReader br) throws IOException {
+        System.out.println("Choose query :\n\t[1] Get ship of container.\n\t[2] Get number of transfers.");
+        String input = br.readLine();
+        String query = null;
+        switch (input) {
+            case "1":
+                System.out.println("Enter container id :");
+                String containerId = br.readLine();
+                query = "getShipId?containerId=" + containerId;
+                break;
+            case "2":
+                System.out.println("Enter container id :");
+                containerId = br.readLine();
+                query = "getNumberOfTransfers?containerId=" + containerId;
+                break;
+        }
+        return query;
+    }
+
+    private static String performGETActionShipping(BufferedReader br) throws IOException {
+        System.out.println("Choose query :\n\t[1] Get number of shipments.\n\t[2] Get number of arrivals.");
+        String input = br.readLine();
+        String query = null;
+        switch (input) {
+            case "1":
+                System.out.println("Enter ship id :");
+                String shipId = br.readLine();
+                query = "numberOfShipments?shipId=" + shipId;
+                break;
+            case "2":
+                System.out.println("Enter ship id :");
+                shipId = br.readLine();
+                query = "numberOfArrivals?shipId=" + shipId;
+                break;
+        }
+        return query;
+    }
+
+    private static String performGETActionStorage(BufferedReader br) throws IOException {
+        System.out.println("Choose query :\n\t[1] Get container of item.\n\t[2] Get number of items in container.");
+        String input = br.readLine();
+        String query = null;
+        switch (input) {
+            case "1":
+                System.out.println("Enter item id :");
+                String itemId = br.readLine();
+                query = "getContainerId?itemId=" + itemId;
+                break;
+            case "2":
+                System.out.println("Enter container id :");
+                String containerId = br.readLine();
+                query = "numberOfItems?containerId=" + containerId;
+                break;
+        }
+        return query;
     }
 
     private static boolean getUserInputAndPerformAction() throws IOException {

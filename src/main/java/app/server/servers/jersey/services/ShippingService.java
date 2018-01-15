@@ -3,7 +3,10 @@ package app.server.servers.jersey.services;
 import app.server.blockchain.BlockChain;
 import app.server.blockchain.TransactionCache;
 import app.server.servers.ServerProcess;
+import app.server.servers.jersey.model.AbstractTransaction;
 import app.server.servers.jersey.model.ShippingModel;
+
+import java.util.List;
 
 /**
  * Created by ophir on 08/01/18.
@@ -20,12 +23,14 @@ public class ShippingService extends AbstractService<ShippingModel> {
     }
 
     private int getNumberOfShipActions(String shipId, ShippingModel.ShipmentType shipmentType) {
-        return (int) getAllTransactionsInBlockChainByModelClass(ShippingModel.class).stream()
+        List<AbstractTransaction> allTransactionsInBlockChainByModelClass = getAllTransactionsInBlockChainByModelClass(ShippingModel.class);
+        long count = allTransactionsInBlockChainByModelClass.stream()
                 .filter(t -> {
                     ShippingModel model = (ShippingModel) t;
                     return model.getShipID().equals(shipId) &&
                             model.getShipmentType().equals(shipmentType);
                 }).count();
+        return (int) count;
     }
 
     /**

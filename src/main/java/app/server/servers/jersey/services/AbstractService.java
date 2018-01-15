@@ -32,12 +32,10 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
             Block block = new Block(transactionCache.cacheOut(), String.valueOf(currentBlockId++));
 
             // 4. Insert block to blockchain
-            System.out.println("Leader : service.blockChain.addBlock(block)");
             blockChain.addBlock(block);
 
             // 5. Broadcast the block to other server processes.
             try {
-                System.out.println("Leader : service.server.distributeBlock(block)");
                 server.distributeBlock(block);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -65,18 +63,15 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
         @Override
         @SuppressWarnings("unchecked")
         public void receive(Message msg) {
-            System.out.println("Leader : Received Message : [" + msg.getSrc() + "] -> [" + msg.getDest() + "] : [" + msg.getObject() + "]");
             MessageWithId messageWithId = null;
             if (msg.getClass().equals(MessageWithId.class)) {
                 messageWithId = (MessageWithId) msg;
             }
             if (messageWithId != null && messageWithId.srcIsDest()) {
                 // Ignore self messages
-                System.out.println("[Leader] : srcIsDst.  Exiting...");
                 return;
             }
             if (messageWithId != null && !messageWithId.isToLeader()) {
-                System.out.println("[Leader] : !messageWithId.isToLeader(). Exiting...");
                 // Ignore messages that are not for the leader
                 return;
             }
@@ -87,11 +82,7 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
             String msgData = msg.getObject().toString();
             Gson gson = new Gson();
             Class<? extends AbstractTransaction> cls = Utils.getTransactionClassObjectFromString(msgData);
-
-            //}
-            System.out.println("msgData : " + msgData + " Type : " + cls.getSimpleName());
             AbstractTransaction transaction = gson.fromJson(msgData, cls);
-
 
             service.blockchainActionsAsLeader(transaction);
         }
@@ -112,18 +103,15 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
          */
         @Override
         public void receive(Message msg) {
-            System.out.println("NonLeader : Received Message : [" + msg.getSrc() + "] -> [" + msg.getDest() + "] : [" + msg.getObject() + "]");
             if (msg.getClass().equals(MessageWithId.class) && ((MessageWithId) msg).isToLeader()) {
                 // Ignore messages that are for the leader
                 return;
             }
 
             // 2. Parse the block from the message.
-            System.out.println("NonLeader : parsing block");
             Block block = Block.parseString(msg.getObject().toString());
 
             // 3. Insert block to blockchain
-            System.out.println("NonLeader : service.blockChain.addBlock(block)");
             service.blockChain.addBlock(block);
         }
     }
@@ -156,10 +144,8 @@ public abstract class AbstractService<ModelType extends AbstractTransaction> {
     public void attemptToExpandBlockChain(ModelType model) throws Exception {
         if (server.isLeader()) {
             // If I am the leader, no need to send to leader
-            System.out.println("Expanding block");
             blockchainActionsAsLeader(model);
         } else {
-            System.out.println("Sending to leader instead of expanding block");
             this.server.sendToLeader(model);
         }
     }

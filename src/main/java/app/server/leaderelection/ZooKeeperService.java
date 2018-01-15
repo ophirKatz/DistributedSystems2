@@ -92,9 +92,7 @@ public class ZooKeeperService {
         String leaderNode = LEADER_ELECTION_ROOT_NODE + "/" + childNodePaths.get(0);
         String addressAsJson = new String(zooKeeper.getData(leaderNode, true, zooKeeper.exists(leaderNode, true)));
         try {
-            Address address = new Gson().fromJson(addressAsJson, addressClassObject);
-            System.out.println(address);
-            return address;
+            return new Gson().fromJson(addressAsJson, addressClassObject);
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
             System.exit(55);

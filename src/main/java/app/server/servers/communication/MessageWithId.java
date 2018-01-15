@@ -32,7 +32,4 @@ public class MessageWithId extends Message {
         return toLeader;
     }
 
-    public void sender() {
-        System.out.println("Sender : " + senderId);
-    }
 }

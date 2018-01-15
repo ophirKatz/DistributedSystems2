@@ -23,7 +23,6 @@ public class ServerGroup {
 
     public ServerGroup(String nodePath, boolean isLeader) throws Exception {
         channel = new JChannel(prop);
-        // channel.setName(nodePath);
         this.isLeader = isLeader;
         channel.addChannelListener(ServerProcess.channelListener);
     }
@@ -39,18 +38,14 @@ public class ServerGroup {
 
     public void connectToGroup() throws Exception {
         channel.connect(clusterName);
-        System.out.println("############ All members of group : ");
-        channel.getView().getMembers().forEach(System.out::println);
     }
 
     public void publishBlockToGroup(Block block) throws Exception {
-        System.out.println("Sending block content to group : " + block.toString());
         channel.send(new MessageWithId(null, block.toString(), ServerMain.getServerId(), false));
     }
 
     public void sendTransactionToLeader(Address leaderAddress, AbstractTransaction transaction) throws Exception {
         String jsonTransaction = transaction.toString();
-        System.out.println("Sending transaction to leader at [" + leaderAddress + "] : " + jsonTransaction);
         channel.send(new MessageWithId(null, jsonTransaction, ServerMain.getServerId(), true));
     }
 
