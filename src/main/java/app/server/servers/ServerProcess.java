@@ -82,12 +82,12 @@ public class ServerProcess {
     public ServerProcess(ProcessNode processNode) throws Exception {
         this.processNode = processNode;
         ServerProcess.channelListener = new ChannelListener(this);
+        this.isLeader = processNode.isLeader();
         this.serverGroup = new ServerGroup(processNode.getNodePath(), isLeader);
         this.serverGroup.connectToGroup();
 
         // Here receivers are null since there are no services yet.
         // setReceiver(isLeader);
-        this.isLeader = processNode.isLeader();
     }
 
     public Address findLeaderAddressInZookeeper() throws KeeperException, InterruptedException {

@@ -127,19 +127,22 @@ public class ClientMain {
         String baseMapping = "/" + new String[]{"shipping", "containers", "storage"}[typeIndex];
 
         // Input query
-        System.out.println("Input query on the resource :");
-        String resourceQuery = br.readLine();
-        String query = baseMapping + "/" + resourceQuery;
+        while (true) {
+            System.out.println("Input query on the resource :");
+            String resourceQuery = br.readLine();
+            String query = baseMapping + "/" + resourceQuery;
 
-        String request = "http://localhost:" + port + applicationPath + query;
-        System.out.println("Run request <" + request + "> on the server? [y/n]");
-        if (br.readLine().equals("y")) {
-            String stringResponse = client.target(request)
-                    .request()
-                    .get(String.class);
-            System.out.println("*****************************************************\n");
-            System.out.println("The response from the server was : " + stringResponse);
-            System.out.println("\n*****************************************************");
+            String request = "http://localhost:" + port + applicationPath + query;
+            System.out.println("Run request <" + request + "> on the server? [y/n]");
+            if (br.readLine().equals("y")) {
+                String stringResponse = client.target(request)
+                        .request()
+                        .get(String.class);
+                System.out.println("*****************************************************\n");
+                System.out.println("The response from the server was : " + stringResponse);
+                System.out.println("\n*****************************************************");
+                break;
+            }
         }
     }
 
